@@ -1,0 +1,125 @@
+/* 🌟 Navbar Styles */
+.navbar {
+  background: rgba(34, 34, 34, 0.9); /* Sleek dark background */
+  backdrop-filter: blur(5px); /* Glass effect */
+  padding: 15px 0;
+  transition: background 0.3s ease-in-out;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  transition: color 0.3s ease-in-out;
+}
+
+.navbar-brand img {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover img {
+  transform: rotate(10deg) scale(1.1);
+}
+
+.navbar-nav {
+  margin-left: auto;
+}
+
+.navbar-nav .nav-item {
+  position: relative;
+}
+
+.navbar-nav .nav-link {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 10px 15px;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #ff5a5f;
+  transform: scale(1.1);
+}
+
+/* 🏆 Cool Hover Effect */
+.navbar-nav .nav-item::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0%;
+  height: 3px;
+  background: #ff5a5f;
+  transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-item:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* 🟢 Active Link */
+.navbar-nav .nav-item.active .nav-link {
+  color: #ff5a5f;
+}
+
+/* 🔥 Dropdown Styling */
+.navbar-toggler {
+  border: none;
+  outline: none;
+  background: none;
+}
+
+.navbar-toggler-icon {
+  background-image: url("https://cdn-icons-png.flaticon.com/512/1828/1828859.png");
+  background-size: cover;
+  width: 30px;
+  height: 30px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.navbar-toggler:focus, 
+.navbar-toggler:hover .navbar-toggler-icon {
+  transform: rotate(90deg);
+}
+
+/* 🔴 Logout Button */
+.navbar .btn-danger {
+  background: #ff5a5f;
+  border: none;
+  padding: 8px 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar .btn-danger:hover {
+  background: #e74c3c;
+  transform: scale(1.1);
+}
+
+/* 📱 Responsive Navbar */
+@media (max-width: 768px) {
+  .navbar-nav {
+    text-align: center;
+    background: rgba(34, 34, 34, 0.9);
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .navbar-nav .nav-item {
+    margin-bottom: 10px;
+  }
+
+  .navbar-nav .nav-link {
+    display: block;
+    padding: 8px;
+  }
+}

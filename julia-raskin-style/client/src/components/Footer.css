@@ -1,0 +1,96 @@
+/* ✅ General Footer Styling */
+.footer {
+  background: linear-gradient(to right, #ff5e78, #ff9966);
+  color: white;
+  padding: 40px 0;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ✅ Container */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ✅ Social Media Icons */
+.footer-social {
+  margin-bottom: 15px;
+}
+
+.footer-social a {
+  margin: 0 10px;
+  font-size: 1.5rem;
+  color: white;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.footer-social a:hover {
+  transform: scale(1.2);
+  color: #fffdd0;
+}
+
+/* ✅ Contact Form */
+.footer-contact-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.footer-contact-form h4 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.footer-contact-form input,
+.footer-contact-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.footer-contact-form textarea {
+  height: 80px;
+  resize: none;
+}
+
+.footer-contact-form button {
+  background: white;
+  color: #ff5e78;
+  border: none;
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  border-radius: 5px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.footer-contact-form button:hover {
+  background: #ffddcc;
+  color: #ff5e78;
+}
+
+/* ✅ Response Message */
+.response-message {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #fffdd0;
+}
+
+/* ✅ Footer Info */
+.footer-info {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}

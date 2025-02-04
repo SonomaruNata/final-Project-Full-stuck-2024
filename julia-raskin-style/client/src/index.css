@@ -1,0 +1,156 @@
+:root {
+  --primary-color: #F01355; /* Primary button color */
+  --primary-hover: #BD0648; /* Hover state color */
+  --primary-text: #FFFFFF; /* Button text color */
+}
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  background: #FFBBC3;  
+  background-size: cover;
+  background-repeat: repeat;
+  font-family: 'Roboto', sans-serif;
+  color: #d7458e;
+}
+
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+:root {
+  /* Primary: Red Wrath */
+  --primary-100: #FFF2F3;
+  --primary-200: #FFBBC3;
+  --primary-300: #FD8299;
+  --primary-400: #F94A74;
+  --primary-500: #F01355;
+  --primary-600: #BD0648;
+  --primary-700: #8B013B;
+  --primary-800: #59002A;
+  --primary-900: #260014;
+
+  /* Accent: Blue Copper Ore */
+  --accent-100: #F8F2FF;
+  --accent-200: #D6BEFE;
+  --accent-300: #AD89FB;
+  --accent-400: #7B52F0;
+  --accent-500: #441FDB;
+  --accent-600: #210AAE;
+  --accent-700: #0D0281;
+  --accent-800: #020054;
+  --accent-900: #000126;
+
+  /* Neutral */
+  --neutral-100: #FCFAFA;
+  --neutral-200: #EFEBEB;
+  --neutral-300: #E2DCDD;
+  --neutral-400: #D4CDCF;
+  --neutral-500: #C7BFC1;
+  --neutral-600: #9F9699;
+  --neutral-700: #776E71;
+  --neutral-800: #4E484B;
+  --neutral-900: #262224;
+
+  /* Bootstrap Overrides */
+  --bs-primary: var(--primary-500);
+  --bs-primary-rgb: 240, 19, 85;
+
+  --bs-secondary: var(--accent-500);
+  --bs-secondary-rgb: 68, 31, 219;
+
+  --bs-success: var(--primary-300);
+  --bs-info: var(--accent-300);
+  --bs-warning: var(--primary-200);
+  --bs-danger: var(--primary-600);
+
+  --bs-light: var(--neutral-100);
+  --bs-dark: var(--neutral-800);
+
+  /* Background Colors */
+  --bs-body-bg: var(--neutral-100);
+  --bs-body-color: var(--neutral-900);
+}
+.bg-primary-100 {
+  background-color: var(--primary-100) !important;
+}
+.text-primary-200 {
+  color: var(--primary-200) !important;
+}
+.bg-accent-500 {
+  background-color: var(--accent-500) !important;
+}
+/* Custom styling for the Home page */
+
+.hero-section {
+  color: #c58686;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
+}
+
+.featured-products .card {
+  border: none;
+  transition: transform 0.3s ease;
+}
+
+.featured-products .card:hover {
+  transform: translateY(-5px);
+}
+
+.about-banner {
+  background-color: #9abee3;
+  padding: 60px 20px;
+  color: #333;
+}
+/* Optional styling for cart page */
+
+.table th, .table td {
+  vertical-align: middle;
+}
+
+.btn-outline-secondary {
+  min-width: 36px;
+  font-weight: bold;
+}
+
+select.form-select {
+  width: auto;
+  min-width: 160px;
+}
+/* Import fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap');
+
+/* Apply font styling globally */
+body {
+  font-family: 'Poppins', sans-serif; /* Default font for body text */
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  color: #4E484B; /* Neutral dark text */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif; /* Use for headings */
+  font-weight: 700;
+  color: #262224;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: var(--primary-text);
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+}
+@import '@fortawesome/fontawesome-free/css/all.min.css';
