@@ -20,7 +20,9 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const { default: articleRoutes } = await import("./routes/articles.mjs");
-const app = express();app.use(express.json());
+
+const app = express();
+app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
@@ -51,7 +53,7 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
 
 app.use("/api/articles", articleRoutes); 
 
-// ✅ Middleware
+
 
 
 // ✅ Logging Middleware

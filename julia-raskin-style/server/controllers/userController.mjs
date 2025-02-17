@@ -1,6 +1,7 @@
-import User from "../models/User.mjs"; // ✅ Correct Import
+import User from "../models/User.mjs";
+import bcrypt from "bcryptjs";
 
-// ✅ Get User Profile (Protected Route)
+/** 📌 Get User Profile */
 export const getUserProfile = async (req, res) => {
   try {
     if (!req.user) {
@@ -18,8 +19,7 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-
-// ✅ Update User Profile
+/** 📌 Update User Profile */
 export const updateUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
