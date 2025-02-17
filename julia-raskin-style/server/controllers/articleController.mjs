@@ -3,8 +3,16 @@ import Article from "../models/Article.mjs";
 // ✅ Get All Articles (Including Gallery)
 export const getArticles = async (req, res) => {
   try {
-    const articles = await Article.find().populate("author", "name email");
-    res.status(200).json(articles);
+    const articles = await Article.find();
+
+    // 🔹 Attach full image path to each article
+    const updatedArticles = articles.map((article) => ({
+      ...article._doc,
+      imageUrl: `${req.protocol}://${req.get("host")}/images/${article.imageUrl}`,
+      gallery: article.gallery.map(img => `${req.protocol}://${req.get("host")}/images/${img}`)
+    }));
+
+    res.status(200).json(updatedArticles);
   } catch (err) {
     res.status(500).json({ message: "Error fetching articles", error: err.message });
   }

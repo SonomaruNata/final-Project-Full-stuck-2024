@@ -27,6 +27,7 @@ const ShoppingSchool = () => {
       </p>
 
       <div className="articles-section">
+        
         {articles.length > 0 ? (
           articles.map((article) => (
             <div key={article._id} className="article-card">

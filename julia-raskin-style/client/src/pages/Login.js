@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
-import { login } from "../services/authService";
+import { loginUser } from "../axiosInstance"; // ✅ API Call Function
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import "./Login.css"; // Import the fancy UI CSS
+import "./Login.css"; // ✅ Fancy UI Styles
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,14 +13,17 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError(""); // ✅ Clear previous errors
 
     try {
-      const response = await login({ email, password });
+      const data = await loginUser(email, password); // ✅ Call API
+      console.log("✅ Login Successful:", data);
 
-      setUser(response); // ✅ Set user in context
-      navigate(response.isAdmin ? "/admin" : "/");
+      localStorage.setItem("token", data.token); // ✅ Store JWT token
+      setUser(data); // ✅ Update AuthContext
+      navigate(data.isAdmin ? "/admin" : "/"); // ✅ Redirect based on role
     } catch (error) {
+      console.error("❌ Login Failed:", error);
       setError(error.response?.data?.message || "Invalid email or password.");
     }
   };
