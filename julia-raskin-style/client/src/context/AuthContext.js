@@ -1,32 +1,40 @@
-import { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import axiosInstance from "../axiosInstance";
 
+// ✅ Create Auth Context
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
+  // ✅ Check Authentication Status on Mount
   useEffect(() => {
-    const fetchProfile = async () => {
+    const checkAuth = async () => {
       const token = localStorage.getItem("token");
-      if (!token) return;
-
-      try {
-        const response = await axiosInstance.get("/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(response.data);
-      } catch (error) {
-        console.error("❌ Profile Fetch Error:", error);
-        localStorage.removeItem("token");
+      if (token) {
+        try {
+          const response = await axiosInstance.get("/api/users/profile", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUser(response.data);
+        } catch (error) {
+          console.error("❌ Error checking authentication:", error);
+          localStorage.removeItem("token");
+        }
       }
     };
-
-    fetchProfile();
+    checkAuth();
   }, []);
 
+  // ✅ Logout Function
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    window.location.href = "/login";
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

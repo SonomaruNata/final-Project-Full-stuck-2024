@@ -1,37 +1,64 @@
-// client/src/pages/Admin/ManageUsers.js
+import React, { useState, useEffect } from "react";
+import axiosInstance from "../../axiosInstance";
+import "./AdminDashboard.css";
 
-import React, { useState } from 'react';
+const ManageUsers = () => {
+  const [users, setUsers] = useState([]);
 
-function ManageUsers() {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Alice', role: 'user' },
-    { id: 2, name: 'Bob', role: 'admin' },
-  ]);
+  // ✅ Fetch Users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axiosInstance.get("/api/admin/users");
+        setUsers(response.data);
+      } catch (error) {
+        console.error("❌ Error fetching users:", error);
+      }
+    };
 
-  const handleUpdateRole = (id, role) => {
-    setUsers(users.map(user => user.id === id ? { ...user, role } : user));
+    fetchUsers();
+  }, []);
+
+  // ✅ Delete User
+  const handleDeleteUser = async (id) => {
+    try {
+      await axiosInstance.delete(`/api/admin/users/${id}`);
+      setUsers(users.filter((user) => user._id !== id));
+      alert("✅ User deleted successfully!");
+    } catch (error) {
+      console.error("❌ Error deleting user:", error);
+      alert("Failed to delete user.");
+    }
   };
 
   return (
-    <div className="container my-5">
+    <div className="manage-section">
       <h2>Manage Users</h2>
-      <ul className="list-group">
-        {users.map(user => (
-          <li key={user.id} className="list-group-item d-flex justify-content-between align-items-center">
-            {user.name} - {user.role}
-            <select
-              className="form-select"
-              value={user.role}
-              onChange={(e) => handleUpdateRole(user.id, e.target.value)}
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </li>
-        ))}
-      </ul>
+      <table className="modern-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user._id}>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td>{user.role}</td>
+              <td>
+                <button className="edit-btn" onClick={() => alert("Edit User Coming Soon!")}>Edit</button>
+                <button className="delete-btn" onClick={() => handleDeleteUser(user._id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
 
 export default ManageUsers;

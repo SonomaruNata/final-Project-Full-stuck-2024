@@ -1,0 +1,71 @@
+/* 🌟 Admin Dashboard Styles */
+.admin-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Poppins", sans-serif;
+  color: #333;
+}
+
+.admin-dashboard h1,
+.admin-dashboard h2 {
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.admin-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.admin-dashboard th,
+.admin-dashboard td {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.admin-dashboard th {
+  background-color: #ff5e78;
+  color: white;
+  text-transform: uppercase;
+}
+
+.admin-dashboard td {
+  background-color: #f9f9f9;
+}
+
+.admin-dashboard tr:hover {
+  background-color: #f1f1f1;
+}
+
+.admin-dashboard button {
+  background-color: #ff5e78;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.admin-dashboard button:hover {
+  background-color: #e04b5b;
+}
+
+.admin-dashboard .edit-btn {
+  background-color: #007bff;
+}
+
+.admin-dashboard .edit-btn:hover {
+  background-color: #0056b3;
+}
+
+/* ✅ Animation */
+.admin-dashboard {
+  animation: fadeIn 1.5s ease-in-out;
+}

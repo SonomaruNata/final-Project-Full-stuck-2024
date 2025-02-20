@@ -41,7 +41,7 @@ function Shop() {
             products.map((product) => (
               <div key={product._id} className="shop-card">
                 <div className="shop-card-img">
-                  {/* ✅ Display Image from Database */}
+                 
                   <img src={product.image} alt={product.name} />
                 </div>
                 <div className="shop-card-body">

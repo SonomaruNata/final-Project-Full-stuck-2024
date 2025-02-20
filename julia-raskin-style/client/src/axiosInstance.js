@@ -1,7 +1,8 @@
 import axios from "axios";
 
+// ✅ Create Axios Instance with Base URL
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/", // ✅ Ensure API base URL is correct
+  baseURL: "http://localhost:5000/api", // ✅ Consistent API base URL
   headers: {
     "Content-Type": "application/json",
   },
@@ -15,12 +16,14 @@ const axiosInstance = axios.create({
  */
 export const loginUser = async (email, password) => {
   try {
+    // ✅ Consistent Endpoint Path
     const response = await axiosInstance.post("/auth/login", { email, password });
     return response.data;
   } catch (error) {
     console.error("❌ Login Error:", error.response?.data?.message || error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || "Login failed, please try again.");
   }
 };
 
+// ✅ Export Default Instance for Other API Calls
 export default axiosInstance;

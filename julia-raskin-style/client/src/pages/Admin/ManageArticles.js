@@ -1,107 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import axiosInstance from "../../axiosInstance";
+import "./AdminDashboard.css";
 
 const ManageArticles = () => {
   const [articles, setArticles] = useState([]);
-  const [newArticle, setNewArticle] = useState({ title: '', content: '' });
-  const [editArticle, setEditArticle] = useState(null);
 
-  // Fetch articles from the backend
+  // ✅ Fetch Articles
   useEffect(() => {
-    fetch('/api/admin/articles')
-      .then((response) => response.json())
-      .then((data) => setArticles(data))
-      .catch((err) => console.error('Error fetching articles:', err));
+    const fetchArticles = async () => {
+      try {
+        const response = await axiosInstance.get("/api/admin/articles");
+        setArticles(response.data);
+      } catch (error) {
+        console.error("❌ Error fetching articles:", error);
+      }
+    };
+
+    fetchArticles();
   }, []);
 
-  // Add a new article
-  const handleAddArticle = () => {
-    fetch('/api/admin/articles', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newArticle),
-    })
-      .then((response) => response.json())
-      .then((article) => {
-        setArticles([...articles, article]);
-        setNewArticle({ title: '', content: '' });
-      })
-      .catch((err) => console.error('Error adding article:', err));
-  };
-
-  // Update an article
-  const handleUpdateArticle = () => {
-    fetch(`/api/admin/articles/${editArticle.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editArticle),
-    })
-      .then((response) => response.json())
-      .then((updatedArticle) => {
-        setArticles(
-          articles.map((article) =>
-            article.id === updatedArticle.id ? updatedArticle : article
-          )
-        );
-        setEditArticle(null);
-      })
-      .catch((err) => console.error('Error updating article:', err));
-  };
-
-  // Delete an article
-  const handleDeleteArticle = (id) => {
-    fetch(`/api/routs/articles/${id}`, { method: 'DELETE' })
-      .then(() => setArticles(articles.filter((article) => article.id !== id)))
-      .catch((err) => console.error('Error deleting article:', err));
+  // ✅ Delete Article
+  const handleDeleteArticle = async (id) => {
+    try {
+      await axiosInstance.delete(`/api/admin/articles/${id}`);
+      setArticles(articles.filter((article) => article._id !== id));
+      alert("✅ Article deleted successfully!");
+    } catch (error) {
+      console.error("❌ Error deleting article:", error);
+      alert("Failed to delete article.");
+    }
   };
 
   return (
-    <div className="manage-articles">
-      <h1>Manage Articles</h1>
-
-      {/* Add Article */}
-      <div className="add-article">
-        <h2>{editArticle ? 'Edit Article' : 'Add New Article'}</h2>
-        <input
-          type="text"
-          placeholder="Title"
-          value={editArticle ? editArticle.title : newArticle.title}
-          onChange={(e) =>
-            editArticle
-              ? setEditArticle({ ...editArticle, title: e.target.value })
-              : setNewArticle({ ...newArticle, title: e.target.value })
-          }
-        />
-        <textarea
-          placeholder="Content"
-          value={editArticle ? editArticle.content : newArticle.content}
-          onChange={(e) =>
-            editArticle
-              ? setEditArticle({ ...editArticle, content: e.target.value })
-              : setNewArticle({ ...newArticle, content: e.target.value })
-          }
-        ></textarea>
-        <button onClick={editArticle ? handleUpdateArticle : handleAddArticle}>
-          {editArticle ? 'Update Article' : 'Add Article'}
-        </button>
-        {editArticle && (
-          <button onClick={() => setEditArticle(null)}>Cancel Edit</button>
-        )}
-      </div>
-
-      {/* Articles List */}
-      <h2>Articles</h2>
-      <ul className="articles-list">
-        {articles.map((article) => (
-          <li key={article.id}>
-            <h3>{article.title}</h3>
-            <p>{article.content}</p>
-            <button onClick={() => setEditArticle(article)}>Edit</button>
-            <button onClick={() => handleDeleteArticle(article.id)}>
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
+    <div className="manage-section">
+      <h2>Manage Articles</h2>
+      <table className="modern-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {articles.map((article) => (
+            <tr key={article._id}>
+              <td>{article.title}</td>
+              <td>
+                <button className="edit-btn" onClick={() => alert("Edit Article Coming Soon!")}>Edit</button>
+                <button className="delete-btn" onClick={() => handleDeleteArticle(article._id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

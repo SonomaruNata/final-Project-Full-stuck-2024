@@ -27,7 +27,10 @@ import ManageOrders from "./pages/Admin/ManageOrders";
 import ManageUsers from "./pages/Admin/ManageUsers";
 import Profile from "./pages/User/Profile";
 import Orders from "./pages/User/Orders";
-
+import UserDashboard from "./pages/User/UserDashboard"; 
+import EditInfo from "./pages/User/EditInfo";
+import Payment from "./pages/User/Payment";
+import UserCart from "./pages/User/UserCart";
 const App = () => {
   return (
     <AuthProvider>
@@ -78,6 +81,7 @@ const App = () => {
               }
             />
 
+
             {/* ✅ User Routes (Protected) */}
             <Route
               path="/user/profile"
@@ -95,6 +99,47 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/user/dashboard"
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+  path="/user/dashboard"
+  element={
+    <ProtectedRoute>
+      <UserDashboard />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/user/edit-info"
+  element={
+    <ProtectedRoute>
+      <EditInfo />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/user/payment"
+  element={
+    <ProtectedRoute>
+      <Payment />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/user/cart"
+  element={
+    <ProtectedRoute>
+      <UserCart />
+    </ProtectedRoute>
+  }
+/>
+
 
             {/* ✅ Catch-All Route for Undefined Paths */}
             <Route path="*" element={<NotFound />} />

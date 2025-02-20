@@ -1,53 +1,64 @@
-// client/src/pages/Admin/ManageProducts.js
+import React, { useState, useEffect } from "react";
+import axiosInstance from "../../axiosInstance";
+import "./AdminDashboard.css";
 
-import React, { useState } from 'react';
+const ManageProducts = () => {
+  const [products, setProducts] = useState([]);
 
-function ManageProducts() {
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Red Dress', price: 120 },
-    { id: 2, name: 'Blue Jeans', price: 85 },
-  ]);
-  const [newProduct, setNewProduct] = useState({ name: '', price: '' });
+  // ✅ Fetch Products
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axiosInstance.get("/api/admin/products");
+        setProducts(response.data);
+      } catch (error) {
+        console.error("❌ Error fetching products:", error);
+      }
+    };
 
-  const handleAddProduct = () => {
-    const newId = products.length + 1;
-    setProducts([...products, { id: newId, ...newProduct }]);
-    setNewProduct({ name: '', price: '' });
+    fetchProducts();
+  }, []);
+
+  // ✅ Delete Product
+  const handleDeleteProduct = async (id) => {
+    try {
+      await axiosInstance.delete(`/api/admin/products/${id}`);
+      setProducts(products.filter((product) => product._id !== id));
+      alert("✅ Product deleted successfully!");
+    } catch (error) {
+      console.error("❌ Error deleting product:", error);
+      alert("Failed to delete product.");
+    }
   };
 
   return (
-    <div className="container my-5">
+    <div className="manage-section">
       <h2>Manage Products</h2>
-      <div className="mb-4">
-        <h5>Add New Product</h5>
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={newProduct.name}
-          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-          className="form-control mb-2"
-        />
-        <input
-          type="number"
-          placeholder="Product Price"
-          value={newProduct.price}
-          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-          className="form-control mb-2"
-        />
-        <button className="btn btn-primary" onClick={handleAddProduct}>
-          Add Product
-        </button>
-      </div>
-      <h5>Product List</h5>
-      <ul className="list-group">
-        {products.map((product) => (
-          <li key={product.id} className="list-group-item">
-            {product.name} - ${product.price}
-          </li>
-        ))}
-      </ul>
+      <table className="modern-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product._id}>
+              <td>{product.name}</td>
+              <td>${product.price}</td>
+              <td>{product.stock}</td>
+              <td>
+                <button className="edit-btn" onClick={() => alert("Edit Product Coming Soon!")}>Edit</button>
+                <button className="delete-btn" onClick={() => handleDeleteProduct(product._id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
 
 export default ManageProducts;

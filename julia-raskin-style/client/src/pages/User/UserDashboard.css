@@ -1,0 +1,38 @@
+.user-dashboard {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-dashboard h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .orders-list,
+  .cart-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .order-item,
+  .cart-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .order-item span,
+  .cart-item span {
+    font-size: 1rem;
+    color: #555;
+  }
+  
