@@ -1,41 +1,45 @@
+// src/context/AuthContext.js
 import React, { createContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 
-// ✅ Create Auth Context
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-  // ✅ Check Authentication Status on Mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          const response = await axiosInstance.get("/api/users/profile", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setUser(response.data);
-        } catch (error) {
-          console.error("❌ Error checking authentication:", error);
-          localStorage.removeItem("token");
-        }
-      }
-    };
-    checkAuth();
-  }, []);
+  const login = async (userData) => {
+    const response = await axiosInstance.post("/auth/login", userData);
+    const { token, isAdmin, ...userDetails } = response.data;
 
-  // ✅ Logout Function
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    window.location.href = "/login";
+    localStorage.setItem("user", JSON.stringify({ ...userDetails, isAdmin }));
+    localStorage.setItem("token", token);
+
+    setUser({ ...userDetails, isAdmin });
+    navigate(isAdmin ? "/admin" : "/user/dashboard");
   };
 
+  const logout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
+    navigate("/login");
+  };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export default AuthContext;

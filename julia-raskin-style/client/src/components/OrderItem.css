@@ -1,0 +1,34 @@
+/* src/components/OrderItem.css */
+.order-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .order-item h3 {
+    color: #333;
+  }
+  
+  .order-item ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .order-item li {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 5px 0;
+  }
+  
+  .order-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+  
+  .order-actions button {
+    padding: 5px 10px;
+  }
+  

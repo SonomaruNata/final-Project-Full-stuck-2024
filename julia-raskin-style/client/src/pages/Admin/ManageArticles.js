@@ -1,39 +1,61 @@
-import React, { useState, useEffect } from "react";
+// src/pages/Admin/ManageArticles.js
+import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
 import "./AdminDashboard.css";
 
 const ManageArticles = () => {
   const [articles, setArticles] = useState([]);
+  const [newArticle, setNewArticle] = useState({ title: "", content: "", image: null });
 
-  // ✅ Fetch Articles
   useEffect(() => {
     const fetchArticles = async () => {
       try {
         const response = await axiosInstance.get("/api/admin/articles");
         setArticles(response.data);
       } catch (error) {
-        console.error("❌ Error fetching articles:", error);
+        console.error("Error fetching articles:", error);
       }
     };
 
     fetchArticles();
   }, []);
 
-  // ✅ Delete Article
-  const handleDeleteArticle = async (id) => {
+  const handleAddArticle = async () => {
+    const formData = new FormData();
+    formData.append("title", newArticle.title);
+    formData.append("content", newArticle.content);
+    formData.append("image", newArticle.image);
+
     try {
-      await axiosInstance.delete(`/api/admin/articles/${id}`);
-      setArticles(articles.filter((article) => article._id !== id));
-      alert("✅ Article deleted successfully!");
+      await axiosInstance.post("/api/admin/articles", formData);
+      alert("Article added successfully!");
+      setNewArticle({ title: "", content: "", image: null });
     } catch (error) {
-      console.error("❌ Error deleting article:", error);
-      alert("Failed to delete article.");
+      console.error("Error adding article:", error);
+      alert("Failed to add article.");
     }
   };
 
   return (
-    <div className="manage-section">
-      <h2>Manage Articles</h2>
+    <div className="admin-section">
+      <h2>Article Management</h2>
+
+      <div className="add-article">
+        <input
+          type="text"
+          placeholder="Title"
+          value={newArticle.title}
+          onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })}
+        />
+        <textarea
+          placeholder="Content"
+          value={newArticle.content}
+          onChange={(e) => setNewArticle({ ...newArticle, content: e.target.value })}
+        />
+        <input type="file" onChange={(e) => setNewArticle({ ...newArticle, image: e.target.files[0] })} />
+        <button onClick={handleAddArticle}>Add Article</button>
+      </div>
+
       <table className="modern-table">
         <thead>
           <tr>
@@ -46,8 +68,8 @@ const ManageArticles = () => {
             <tr key={article._id}>
               <td>{article.title}</td>
               <td>
-                <button className="edit-btn" onClick={() => alert("Edit Article Coming Soon!")}>Edit</button>
-                <button className="delete-btn" onClick={() => handleDeleteArticle(article._id)}>Delete</button>
+                <button onClick={() => alert("Edit Coming Soon!")}>Edit</button>
+                <button onClick={() => alert("Delete Coming Soon!")}>Delete</button>
               </td>
             </tr>
           ))}

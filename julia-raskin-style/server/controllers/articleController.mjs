@@ -1,64 +1,62 @@
-import Article from "../models/Article.mjs";
+// server/controllers/articleController.mjs
+import Article from "../models/Article.mjs"; 
 
-// ✅ Get All Articles (Including Gallery)
+// ✅ Get All Articles
 export const getArticles = async (req, res) => {
   try {
-    const articles = await Article.find();
-
-    // 🔹 Attach full image path to each article
-    const updatedArticles = articles.map((article) => ({
-      ...article._doc,
-      imageUrl: `${req.protocol}://${req.get("host")}/images/${article.imageUrl}`,
-      gallery: article.gallery.map(img => `${req.protocol}://${req.get("host")}/images/${img}`)
-    }));
-
-    res.status(200).json(updatedArticles);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching articles", error: err.message });
+    const articles = await Article.find().populate("author", "name");
+    res.json(articles);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
-// ✅ Get a Single Article by ID
+// ✅ Get Single Article
 export const getArticleById = async (req, res) => {
   try {
-    const article = await Article.findById(req.params.id).populate("author", "name email");
+    const article = await Article.findById(req.params.id).populate("author", "name");
     if (!article) return res.status(404).json({ message: "Article not found" });
-    res.status(200).json(article);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching article", error: err.message });
+    res.json(article);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
-// ✅ Upload New Article with Gallery
+// ✅ Create Article (Protected)
 export const createArticle = async (req, res) => {
-  const { title, content, author, imageUrl, gallery } = req.body;
   try {
-    const newArticle = new Article({ title, content, author, imageUrl, gallery });
+    const newArticle = new Article({
+      title: req.body.title,
+      content: req.body.content,
+      author: req.user.id,
+      imageUrl: req.body.imageUrl,
+      gallery: req.body.gallery || [],
+    });
     const savedArticle = await newArticle.save();
     res.status(201).json(savedArticle);
-  } catch (err) {
-    res.status(500).json({ message: "Error creating article", error: err.message });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
-// ✅ Update an Existing Article (Allowing Gallery Updates)
+// ✅ Update Article (Admin Only)
 export const updateArticle = async (req, res) => {
   try {
-    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedArticle) return res.status(404).json({ message: "Article not found" });
-    res.status(200).json(updatedArticle);
-  } catch (err) {
-    res.status(500).json({ message: "Error updating article", error: err.message });
+    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(updatedArticle);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
-// ✅ Delete an Article
+// ✅ Delete Article (Admin Only)
 export const deleteArticle = async (req, res) => {
   try {
-    const deletedArticle = await Article.findByIdAndDelete(req.params.id);
-    if (!deletedArticle) return res.status(404).json({ message: "Article not found" });
-    res.status(200).json({ message: "Article deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Error deleting article", error: err.message });
+    await Article.findByIdAndDelete(req.params.id);
+    res.json({ message: "Article deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };

@@ -19,7 +19,7 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const { default: articleRoutes } = await import("./routes/articles.mjs");
+
 
 const app = express();
 app.use(express.json());
@@ -51,7 +51,7 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
   res.status(200).json({ imageUrl: `/images/${req.file.filename}` });
 });
 
-app.use("/api/articles", articleRoutes); 
+
 
 
 

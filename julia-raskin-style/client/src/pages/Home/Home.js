@@ -48,11 +48,12 @@ function Home() {
               products.map((product) => (
                 <div key={product._id} className="col-md-4 mb-4">
                   <div className="card">
-                    <img
-                      src={product.image}
-                      className="card-img-top"
-                      alt={product.name}
-                    />
+                  <img 
+  src={product.imageUrl} 
+  alt={product.name} 
+  style={{ width: "200px", height: "200px", objectFit: "cover" }} 
+/>
+
                     <div className="card-body">
                       <h5 className="card-title">{product.name}</h5>
                       <p className="card-text">${product.price}</p>

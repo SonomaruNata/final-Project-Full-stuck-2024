@@ -2,7 +2,8 @@ import React, { useState, useContext } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup"; // ✅ Validation with Yup
 import { loginUser } from "../axiosInstance"; 
-import { AuthContext } from "../context/AuthContext";
+import AuthContext from "../context/AuthContext";
+
 import { useNavigate, Link } from "react-router-dom";
 import "./Login.css"; // ✅ Fancy UI Styles
 

@@ -1,0 +1,28 @@
+/* src/components/ProductItem.css */
+.product-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+  }
+  
+  .product-item:hover {
+    transform: scale(1.05);
+  }
+  
+  .product-image {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  
+  .product-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  

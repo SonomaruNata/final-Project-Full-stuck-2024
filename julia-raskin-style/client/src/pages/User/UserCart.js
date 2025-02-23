@@ -1,18 +1,32 @@
-import React from "react";
+// src/pages/User/UserCart.js
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../../axiosInstance";
+import "./UserCart.css";
 
-const UserCart = ({ cart }) => {
+const UserCart = () => {
+  const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    fetchCartItems();
+  }, []);
+
+  const fetchCartItems = async () => {
+    try {
+      const response = await axiosInstance.get("/api/cart");
+      setCartItems(response.data);
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
+  };
+
   return (
     <div className="user-cart">
       <h2>Your Cart</h2>
-      {cart.length > 0 ? (
-        <ul className="cart-list">
-          {cart.map((item) => (
-            <li key={item.product._id} className="cart-item">
-              <span>{item.product.name}</span>
-              <span>Quantity: {item.quantity}</span>
-              <button className="btn btn-sm btn-warning" onClick={() => alert("Edit Cart Coming Soon!")}>
-                Edit
-              </button>
+      {cartItems.length > 0 ? (
+        <ul>
+          {cartItems.map((item) => (
+            <li key={item._id}>
+              {item.product.name} - Quantity: {item.quantity}
             </li>
           ))}
         </ul>

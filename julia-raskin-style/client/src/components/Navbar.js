@@ -1,10 +1,11 @@
+// src/components/Navbar.js
 import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import AuthContext from "../context/AuthContext";
 import JuliaImages from "../assets/images/about/JuliaImages";
 import "./Navbar.css";
 
-function Navbar() {
+const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
@@ -15,19 +16,17 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav className="navbar navbar-expand-lg navbar-dark sticky-top custom-navbar">
       <div className="container">
-        {/* 🔥 Brand Logo */}
         <Link className="navbar-brand" to="/">
           <img
             src={JuliaImages.brandLogo}
             alt="Julia Raskin Style Logo"
-            className="img-fluid rounded-circle"
+            className="img-fluid rounded-circle brand-logo"
           />
           Julia Raskin Style
         </Link>
 
-        {/* 📱 Mobile Toggler */}
         <button
           className="navbar-toggler"
           type="button"
@@ -41,7 +40,6 @@ function Navbar() {
 
         <div className={`collapse navbar-collapse ${isNavCollapsed ? "" : "show"}`} id="navbarNav">
           <ul className="navbar-nav ml-auto">
-            {/* 🌟 Main Navigation */}
             <li className="nav-item">
               <Link className="nav-link" to="/">Home</Link>
             </li>
@@ -58,14 +56,18 @@ function Navbar() {
               <Link className="nav-link" to="/cart">Cart</Link>
             </li>
 
-            {/* 🔥 Admin Dashboard */}
             {user?.isAdmin && (
               <li className="nav-item">
                 <Link className="nav-link" to="/admin">Admin Dashboard</Link>
               </li>
             )}
 
-            {/* 🔐 Authentication */}
+            {user && !user.isAdmin && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/user/dashboard">User Dashboard</Link>
+              </li>
+            )}
+
             {!user ? (
               <>
                 <li className="nav-item">
@@ -85,6 +87,6 @@ function Navbar() {
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;

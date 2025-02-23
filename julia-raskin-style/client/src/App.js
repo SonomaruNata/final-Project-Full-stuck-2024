@@ -20,6 +20,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import NotFound from "./pages/NotFound/NotFound";
 import ProductDetails from "./pages/Products/ProductDetails";
+
 // Import Admin and User Pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ManageProducts from "./pages/Admin/ManageProducts";
@@ -31,10 +32,11 @@ import UserDashboard from "./pages/User/UserDashboard";
 import EditInfo from "./pages/User/EditInfo";
 import Payment from "./pages/User/Payment";
 import UserCart from "./pages/User/UserCart";
+
 const App = () => {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>  {/* Router wraps everything */}
+      <AuthProvider> {/* AuthProvider is now inside Router */}
         <Navbar />
         <main className="py-4">
           <Routes>
@@ -46,7 +48,8 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/shopping-school" element={<ShoppingSchool />} />
-            <Route path="/shop/:id" element={<ProductDetails />} />;
+            <Route path="/shop/:id" element={<ProductDetails />} />
+
             {/* ✅ Admin Routes (Protected) */}
             <Route
               path="/admin"
@@ -81,7 +84,6 @@ const App = () => {
               }
             />
 
-
             {/* ✅ User Routes (Protected) */}
             <Route
               path="/user/profile"
@@ -108,46 +110,37 @@ const App = () => {
               }
             />
             <Route
-  path="/user/dashboard"
-  element={
-    <ProtectedRoute>
-      <UserDashboard />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/user/edit-info"
-  element={
-    <ProtectedRoute>
-      <EditInfo />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/user/payment"
-  element={
-    <ProtectedRoute>
-      <Payment />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/user/cart"
-  element={
-    <ProtectedRoute>
-      <UserCart />
-    </ProtectedRoute>
-  }
-/>
-
+              path="/user/edit-info"
+              element={
+                <ProtectedRoute>
+                  <EditInfo />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/payment"
+              element={
+                <ProtectedRoute>
+                  <Payment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/cart"
+              element={
+                <ProtectedRoute>
+                  <UserCart />
+                </ProtectedRoute>
+              }
+            />
 
             {/* ✅ Catch-All Route for Undefined Paths */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 

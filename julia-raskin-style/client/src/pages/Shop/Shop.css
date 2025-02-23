@@ -200,3 +200,36 @@
 .shop-view-btn:hover {
   background-color: #d81b60;
 }
+/* ✅ Add to Cart Button */
+.shop-add-to-cart-btn {
+  display: inline-block;
+  background: #ff3f6c;
+  color: white;
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.shop-add-to-cart-btn:hover {
+  background: #ff1744;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.shop-add-to-cart-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+  background: #d50000;
+}
+.product-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover; /* Ensures the image doesn't get distorted */
+  border-radius: 10px; /* Optional: Rounded corners */
+}

@@ -1,3 +1,4 @@
+// server/routes/articles.mjs
 import express from "express";
 import {
   getArticles,
@@ -21,4 +22,4 @@ router.post("/", protect, createArticle);
 router.put("/:id", protect, adminOnly, updateArticle);
 router.delete("/:id", protect, adminOnly, deleteArticle);
 
-export default router; // ✅ Correct export
+export default router;

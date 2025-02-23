@@ -1,19 +1,100 @@
+// server/routes/cartRoutes.mjs
 import express from "express";
+import Product from "../models/Product.mjs";
+import User from "../models/User.mjs";
 import { protect } from "../middlewares/authMiddleware.mjs";
-import {
-  getCart,
-  addToCart,
-  updateCartItem,
-  removeFromCart,
-  checkoutCart,
-} from "../controllers/cartController.mjs";
 
 const router = express.Router();
 
-router.get("/", protect, getCart);
-router.post("/", protect, addToCart);
-router.put("/:productId", protect, updateCartItem);
-router.delete("/:productId", protect, removeFromCart);
-router.post("/checkout", protect, checkoutCart);
+// ✅ Get all products
+router.get("/products", async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching products", error: err.message });
+  }
+});
+
+// ✅ Get a product by ID
+router.get("/products/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.json(product);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching product", error: err.message });
+  }
+});
+
+// ✅ Add a product to cart
+router.post("/cart", protect, async (req, res) => {
+  const { productId, quantity } = req.body;
+  const userId = req.user._id;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    if (!user.cart) user.cart = [];
+    const itemIndex = user.cart.findIndex((item) => item.product.toString() === productId);
+
+    if (itemIndex > -1) {
+      // Update quantity if product already in cart
+      user.cart[itemIndex].quantity += quantity;
+    } else {
+      // Add new item to cart
+      user.cart.push({ product: productId, quantity });
+    }
+
+    await user.save();
+
+    res.json({ message: "Product added to cart", cart: user.cart });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error adding to cart", error: err.message });
+  }
+});
+
+// ✅ Get cart items
+router.get("/cart", protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate("cart.product");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user.cart);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching cart", error: err.message });
+  }
+});
+
+// ✅ Remove a product from cart
+router.delete("/cart/:productId", protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.cart = user.cart.filter(
+      (item) => item.product.toString() !== req.params.productId
+    );
+    await user.save();
+
+    res.json({ message: "Product removed from cart", cart: user.cart });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error removing product from cart",
+      error: err.message,
+    });
+  }
+});
 
 export default router;

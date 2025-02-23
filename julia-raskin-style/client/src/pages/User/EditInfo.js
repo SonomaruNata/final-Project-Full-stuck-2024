@@ -1,65 +1,60 @@
-import React, { useState, useEffect } from "react";
+// src/pages/User/EditInfo.js
+import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
 
 const EditInfo = () => {
-  const [userData, setUserData] = useState({ name: "", email: "" });
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({});
+  const [editing, setEditing] = useState(false);
 
-  // ✅ Fetch User Info
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await axiosInstance.get("/api/users/profile");
-        setUserData(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchUserInfo();
+    fetchUserProfile();
   }, []);
 
-  // ✅ Handle Info Update
-  const handleUpdate = async (e) => {
-    e.preventDefault();
+  const fetchUserProfile = async () => {
     try {
-      await axiosInstance.put("/api/users/profile", userData);
-      alert("Profile updated successfully!");
+      const response = await axiosInstance.get("/api/users/profile");
+      setUser(response.data);
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Update failed. Try again.");
+      console.error("Error fetching user profile:", error);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    try {
+      await axiosInstance.put("/api/users/profile", user);
+      setEditing(false);
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile.");
+    }
+  };
 
   return (
     <div className="edit-info">
-      <h2>Edit Personal Information</h2>
-      <form onSubmit={handleUpdate}>
-        <div className="form-group">
-          <label>Name:</label>
-          <input
-            type="text"
-            value={userData.name}
-            onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-            className="form-control"
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Email:</label>
-          <input
-            type="email"
-            value={userData.email}
-            className="form-control"
-            disabled
-          />
-        </div>
-        <button type="submit" className="btn btn-primary mt-3">Save Changes</button>
-      </form>
+      <h2>Profile Information</h2>
+      <input
+        type="text"
+        name="name"
+        value={user.name || ""}
+        onChange={handleChange}
+        disabled={!editing}
+      />
+      <input
+        type="email"
+        name="email"
+        value={user.email || ""}
+        disabled
+      />
+      {editing ? (
+        <button onClick={handleSave}>Save</button>
+      ) : (
+        <button onClick={() => setEditing(true)}>Edit Profile</button>
+      )}
     </div>
   );
 };

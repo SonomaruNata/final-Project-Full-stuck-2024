@@ -1,0 +1,21 @@
+/* src/pages/User/UserCart.css */
+.user-cart {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+  }
+  
+  .user-cart h2 {
+    color: #333;
+  }
+  
+  .user-cart ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .user-cart li {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 0;
+  }
+  
