@@ -60,24 +60,34 @@ export const loginUser = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: "Invalid email or password" });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid email or password" });
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
 
     // ✅ Generate JWT Token
     const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
       expiresIn: "30d",
     });
 
-    // ✅ Send token in response
-    res.cookie("jwt", token, { httpOnly: true, secure: false, sameSite: "strict" });
-    res.json({
+    // ✅ Set Cookie with Token (For Server-Side Auth)
+    res.cookie("jwt", token, { 
+      httpOnly: true, 
+      secure: false, // Set to true if using HTTPS
+      sameSite: "Strict" 
+    });
+
+    // ✅ Send token explicitly for Frontend to access
+    res.status(200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token,
+      token, // Explicitly send token in response
     });
 
   } catch (error) {
@@ -85,6 +95,7 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 /** 📌 Logout User */
 export const logoutUser = (req, res) => {
   res.cookie("jwt", "", {

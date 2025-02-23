@@ -1,56 +1,59 @@
+// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// Import Authentication Context
+// ✅ Import Authentication Context
 import { AuthProvider } from "./context/AuthContext";
 
-// Import Components
+// ✅ Import Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Import Pages
+// ✅ Import Public Pages
 import Home from "./pages/Home/Home";
 import AboutMe from "./pages/AboutMe/AboutMe";
-import Cart from "./pages/Cart/Cart";
 import Shop from "./pages/Shop/Shop";
+import Cart from "./pages/Cart/Cart";
 import ShoppingSchool from "./pages/ShoppingSchool/ShoppingSchool";
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
-import NotFound from "./pages/NotFound/NotFound";
 import ProductDetails from "./pages/Products/ProductDetails";
+import NotFound from "./pages/NotFound/NotFound";
 
-// Import Admin and User Pages
+// ✅ Import Admin Pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ManageProducts from "./pages/Admin/ManageProducts";
 import ManageOrders from "./pages/Admin/ManageOrders";
 import ManageUsers from "./pages/Admin/ManageUsers";
+
+// ✅ Import User Pages
+import UserDashboard from "./pages/User/UserDashboard"; 
 import Profile from "./pages/User/Profile";
 import Orders from "./pages/User/Orders";
-import UserDashboard from "./pages/User/UserDashboard"; 
 import EditInfo from "./pages/User/EditInfo";
 import Payment from "./pages/User/Payment";
 import UserCart from "./pages/User/UserCart";
 
 const App = () => {
   return (
-    <Router>  {/* Router wraps everything */}
-      <AuthProvider> {/* AuthProvider is now inside Router */}
+    <Router>  {/* ✅ Router wraps everything */}
+      <AuthProvider> {/* ✅ AuthProvider inside Router */}
         <Navbar />
         <main className="py-4">
           <Routes>
-            {/* ✅ Public Routes */}
+            {/* 🌐 Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<AboutMe />} />
-            <Route path="/cart" element={<Cart />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/shopping-school" element={<ShoppingSchool />} />
             <Route path="/shop/:id" element={<ProductDetails />} />
 
-            {/* ✅ Admin Routes (Protected) */}
+            {/* 🔐 Admin Routes (Protected) */}
             <Route
               path="/admin"
               element={
@@ -84,7 +87,15 @@ const App = () => {
               }
             />
 
-            {/* ✅ User Routes (Protected) */}
+            {/* 👤 User Routes (Protected) */}
+            <Route
+              path="/user/dashboard"
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/user/profile"
               element={
@@ -98,14 +109,6 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Orders />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/user/dashboard"
-              element={
-                <ProtectedRoute>
-                  <UserDashboard />
                 </ProtectedRoute>
               }
             />
@@ -134,7 +137,7 @@ const App = () => {
               }
             />
 
-            {/* ✅ Catch-All Route for Undefined Paths */}
+            {/* 🚫 Catch-All Route for Undefined Paths */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
