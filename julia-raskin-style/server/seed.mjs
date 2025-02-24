@@ -1,9 +1,10 @@
+// seedDatabase.mjs
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import chalk from "chalk";
 import User from "./models/User.mjs";
 import Product from "./models/Product.mjs";
-import Article from "./models/Article.mjs"; // ✅ Ensure this is imported
+import Article from "./models/Article.mjs";
 import { users, products, articles } from "./data/initial-data.mjs";
 
 dotenv.config();
@@ -42,6 +43,8 @@ export const seedDatabase = async () => {
     console.log(chalk.blue("🚀 Database Seeding Complete!"));
   } catch (error) {
     console.error(chalk.red(`❌ Seeding Error: ${error.message}`));
+  } finally {
+    mongoose.disconnect();
   }
 };
 

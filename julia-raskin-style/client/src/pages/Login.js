@@ -1,16 +1,15 @@
+// src/pages/Login.js
 import React, { useState, useContext } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup"; // ✅ Validation with Yup
-import { loginUser } from "../axiosInstance"; 
-import AuthContext from "../context/AuthContext";
-
 import { useNavigate, Link } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 import "./Login.css"; // ✅ Fancy UI Styles
 
 const Login = () => {
-  const { setUser } = useContext(AuthContext);
+  const { handleLogin } = useContext(AuthContext);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ Loader State
+  const [loading, setLoading] = useState(false); 
   const navigate = useNavigate();
 
   // ✅ Form Validation with Yup
@@ -29,12 +28,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const data = await loginUser(values.email, values.password); 
-      console.log("✅ Login Successful:", data);
-
-      localStorage.setItem("token", data.token); 
-      setUser(data); 
-      navigate(data.isAdmin ? "/admin" : "/"); 
+      await handleLogin(values); 
     } catch (error) {
       console.error("❌ Login Failed:", error);
       setError(error.response?.data?.message || "Invalid email or password.");

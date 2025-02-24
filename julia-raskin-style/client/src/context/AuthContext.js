@@ -1,9 +1,9 @@
 // src/context/AuthContext.js
 import React, { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../axiosInstance";
+import { login, signup, logout as authLogout } from "../services/authService";
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
@@ -12,20 +12,23 @@ export const AuthProvider = ({ children }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const login = async (userData) => {
-    const response = await axiosInstance.post("/auth/login", userData);
-    const { token, isAdmin, ...userDetails } = response.data;
-
-    localStorage.setItem("user", JSON.stringify({ ...userDetails, isAdmin }));
-    localStorage.setItem("token", token);
-
-    setUser({ ...userDetails, isAdmin });
-    navigate(isAdmin ? "/admin" : "/user/dashboard");
+  // ✅ Login Function
+  const handleLogin = async (userData) => {
+    const data = await login(userData);
+    setUser(data);
+    navigate(data.isAdmin ? "/admin" : "/user/dashboard");
   };
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  // ✅ Signup Function
+  const handleSignup = async (userData) => {
+    const data = await signup(userData);
+    setUser(data);
+    navigate("/user/dashboard");
+  };
+
+  // ✅ Logout Function - Consistent Naming
+  const handleLogout = () => {
+    authLogout();
     setUser(null);
     navigate("/login");
   };
@@ -36,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, handleLogin, handleSignup, handleLogout }}>
       {children}
     </AuthContext.Provider>
   );

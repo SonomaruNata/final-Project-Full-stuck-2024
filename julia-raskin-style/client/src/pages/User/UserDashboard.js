@@ -5,6 +5,7 @@ import Orders from "./Orders";
 import UserCart from "./UserCart";
 import Payment from "./Payment";
 import "./UserDashboard.css";
+import { FaUser, FaBoxOpen, FaShoppingCart, FaCreditCard } from "react-icons/fa";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -13,10 +14,30 @@ const UserDashboard = () => {
     <div className="user-dashboard">
       <h1>Your Account</h1>
       <nav className="dashboard-nav">
-        <button onClick={() => setActiveTab("profile")}>Profile</button>
-        <button onClick={() => setActiveTab("orders")}>Orders</button>
-        <button onClick={() => setActiveTab("cart")}>Cart</button>
-        <button onClick={() => setActiveTab("payment")}>Payment</button>
+        <button
+          className={activeTab === "profile" ? "active" : ""}
+          onClick={() => setActiveTab("profile")}
+        >
+          <FaUser /> Profile
+        </button>
+        <button
+          className={activeTab === "orders" ? "active" : ""}
+          onClick={() => setActiveTab("orders")}
+        >
+          <FaBoxOpen /> Orders
+        </button>
+        <button
+          className={activeTab === "cart" ? "active" : ""}
+          onClick={() => setActiveTab("cart")}
+        >
+          <FaShoppingCart /> Cart
+        </button>
+        <button
+          className={activeTab === "payment" ? "active" : ""}
+          onClick={() => setActiveTab("payment")}
+        >
+          <FaCreditCard /> Payment
+        </button>
       </nav>
 
       <div className="dashboard-content">
@@ -30,3 +51,4 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
+

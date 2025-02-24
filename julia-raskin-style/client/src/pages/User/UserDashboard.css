@@ -1,38 +1,53 @@
+/* src/pages/User/UserDashboard.css */
 .user-dashboard {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .user-dashboard h1 {
-    font-size: 2.5rem;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .orders-list,
-  .cart-list {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .order-item,
-  .cart-item {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .order-item span,
-  .cart-item span {
-    font-size: 1rem;
-    color: #555;
-  }
-  
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-dashboard h1 {
+  text-align: center;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+.dashboard-nav {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.dashboard-nav button {
+  background: #f8f8f8;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1rem;
+  color: #444;
+}
+
+.dashboard-nav button.active {
+  background: #007bff;
+  color: #fff;
+}
+
+.dashboard-nav button:hover {
+  background: #007bff;
+  color: #fff;
+}
+
+.dashboard-content {
+  padding: 20px;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  background: #fafafa;
+}

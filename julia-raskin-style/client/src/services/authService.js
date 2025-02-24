@@ -1,19 +1,22 @@
+// src/services/authService.js
 import axiosInstance from "../axiosInstance";
 
 // ✅ Signup Function
 export const signup = async (userData) => {
-  return await axiosInstance.post("/auth/signup", userData);
+  const response = await axiosInstance.post("/auth/signup", userData);
+  return response.data;
 };
 
 // ✅ Login Function
 export const login = async (userData) => {
   const response = await axiosInstance.post("/auth/login", userData);
-  const { token, isAdmin } = response.data;
+  const { token, isAdmin, ...userDetails } = response.data;
 
-  localStorage.setItem("user", JSON.stringify({ email: userData.email, isAdmin }));
+  // ✅ Store isAdmin flag in localStorage
+  localStorage.setItem("user", JSON.stringify({ ...userDetails, isAdmin }));
   localStorage.setItem("token", token);
 
-  return response.data;
+  return { ...userDetails, isAdmin }; // ✅ Return isAdmin flag
 };
 
 // ✅ Logout Function

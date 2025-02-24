@@ -6,13 +6,13 @@ import JuliaImages from "../assets/images/about/JuliaImages";
 import "./Navbar.css";
 
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, handleLogout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const logout = () => {
+    handleLogout();
+    navigate("/login");  // Redirect to login page after logout
   };
 
   return (
@@ -40,6 +40,7 @@ const Navbar = () => {
 
         <div className={`collapse navbar-collapse ${isNavCollapsed ? "" : "show"}`} id="navbarNav">
           <ul className="navbar-nav ml-auto">
+            {/* ✅ Public Links */}
             <li className="nav-item">
               <Link className="nav-link" to="/">Home</Link>
             </li>
@@ -56,18 +57,21 @@ const Navbar = () => {
               <Link className="nav-link" to="/cart">Cart</Link>
             </li>
 
+            {/* ✅ Admin Links */}
             {user?.isAdmin && (
               <li className="nav-item">
                 <Link className="nav-link" to="/admin">Admin Dashboard</Link>
               </li>
             )}
 
+            {/* ✅ User Links */}
             {user && !user.isAdmin && (
               <li className="nav-item">
                 <Link className="nav-link" to="/user/dashboard">User Dashboard</Link>
               </li>
             )}
 
+            {/* ✅ Auth Links */}
             {!user ? (
               <>
                 <li className="nav-item">
@@ -79,7 +83,7 @@ const Navbar = () => {
               </>
             ) : (
               <li className="nav-item">
-                <button className="nav-link btn btn-danger" onClick={handleLogout}>Logout</button>
+                <button className="nav-link btn btn-danger" onClick={logout}>Logout</button>
               </li>
             )}
           </ul>
