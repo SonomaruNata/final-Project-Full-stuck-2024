@@ -60,11 +60,9 @@ function Shop() {
               <div key={product._id} className="shop-card">
                 
                 <div className="shop-card-body">
-                <img 
-  src={product.imageUrl} 
-  alt={product.name} 
-  className="product-image" 
-/>
+                <img src={product.imageUrl}  alt={product.name} className="product-image" />
+
+
 
                   <h5 className="shop-card-title">{product.name}</h5>
                   <p className="shop-card-price">${product.price}</p>

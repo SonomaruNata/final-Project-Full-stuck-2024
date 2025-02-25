@@ -35,7 +35,7 @@ import Orders from "./pages/User/Orders";
 import EditInfo from "./pages/User/EditInfo";
 import Payment from "./pages/User/Payment";
 import UserCart from "./pages/User/UserCart";
-
+import ArticleDetail from "./pages/ShoppingSchool/ArticleDetail"; // ✅ Import new page
 const App = () => {
   return (
     <Router>  {/* ✅ Router wraps everything */}
@@ -52,6 +52,7 @@ const App = () => {
             <Route path="/signup" element={<Signup />} />
             <Route path="/shopping-school" element={<ShoppingSchool />} />
             <Route path="/shop/:id" element={<ProductDetails />} />
+            <Route path="/shopping-school/:id" element={<ArticleDetail />} />
 
             {/* 🔐 Admin Routes (Protected) */}
             <Route

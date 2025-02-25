@@ -2,7 +2,7 @@
 import express from "express";
 import {
   getArticles,
-  getArticleById,
+  getArticleById,        // ✅ Import this function
   createArticle,
   updateArticle,
   deleteArticle,
@@ -13,7 +13,7 @@ const router = express.Router();
 
 // ✅ Public Routes (Anyone can read articles)
 router.get("/", getArticles);
-router.get("/:id", getArticleById);
+router.get("/:id", getArticleById);   // ✅ Route for getting single article
 
 // ✅ Protected Routes (Only logged-in users can create)
 router.post("/", protect, createArticle);

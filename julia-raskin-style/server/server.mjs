@@ -32,7 +32,7 @@ app.use(
     allowedHeaders: "Content-Type, Accept, Authorization",
   })
 );
-app.use("/images", express.static(path.join(__dirname, "public/images")));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, "public/images")); // ✅ Save images in `public/images`
@@ -72,8 +72,6 @@ app.use(
   })
 );
 
-// ✅ Serve Static Images from `public/images`
-app.use("/images", express.static(path.join(__dirname, "public/images")));
 
 // ✅ MongoDB Connection Function
 const connectDB = async () => {

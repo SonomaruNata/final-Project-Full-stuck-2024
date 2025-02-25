@@ -27,7 +27,7 @@ export const products = [
   {
     name: "Black Shoes",
     price: 120,
-    imageUrl: "/images/products/blackshoes.jpg", // ✅ Consistent image path
+    imageUrl: "blackshoes.jpg", // ✅ Consistent image path
     description: "Elegant black shoes perfect for any occasion.",
     category: "Footwear", // ✅ Consistent category naming
     stock: 5,
@@ -35,7 +35,7 @@ export const products = [
   {
     name: "Outfit Set",
     price: 85,
-    imageUrl: "/images/products/outfit.jpg",
+    imageUrl: "outfit.jpg",
     description: "Stylish outfit set with modern design.",
     category: "Clothing",
     stock: 3,
@@ -43,7 +43,7 @@ export const products = [
   {
     name: "Sandal",
     price: 45,
-    imageUrl: "/images/products/sandal.jpg",
+    imageUrl: "sandal.jpg",
     description: "Comfortable and stylish sandals.",
     category: "Footwear",
     stock: 2,

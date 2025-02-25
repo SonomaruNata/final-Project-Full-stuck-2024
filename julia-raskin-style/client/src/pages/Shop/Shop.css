@@ -233,3 +233,22 @@
   object-fit: cover; /* Ensures the image doesn't get distorted */
   border-radius: 10px; /* Optional: Rounded corners */
 }
+.responsive-product-image {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.responsive-product-image:hover {
+  transform: scale(1.05);
+}
+.shop-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
