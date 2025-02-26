@@ -13,7 +13,7 @@ const ArticleDetail = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await axiosInstance.get(`/api/articles/${id}`);
+        const response = await axiosInstance.get(`articles/${id}`);
         setArticle(response.data);
       } catch (err) {
         setError("Failed to load article. Please try again.");
@@ -31,19 +31,22 @@ const ArticleDetail = () => {
 
   return (
     <div className="article-detail-container">
-      <h1>{article.title}</h1>
+      <h1 className="article-title">{article.title}</h1>
       <img
-        src={`http://localhost:5000/images/articles/${article.imageUrl.replace(/^\/+/, '')}`}
+        src={article.imageUrl}
+
         alt={article.title}
         className="article-detail-image"
       />
-      <p>{article.content}</p>
+      <div className="article-content">{article.content}</div>
+      
       {article.gallery?.length > 0 && (
         <div className="article-detail-gallery">
           {article.gallery.map((image, index) => (
             <img
               key={index}
-              src={`http://localhost:5000/images/articles/${image.replace(/^\/+/, '')}`}
+              src={article.imageUrl}
+
               alt={`Gallery ${index + 1}`}
               className="gallery-image"
             />

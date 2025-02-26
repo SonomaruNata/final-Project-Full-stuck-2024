@@ -1,4 +1,4 @@
-// src/pages/Shop/Shop.js
+// client/src/pages/Shop/Shop.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -26,7 +26,7 @@ function Shop() {
     fetchProducts();
   }, []);
 
-  // ✅ Add to Cart Function
+  // ✅ Add to Cart Function with Success Message
   const addToCart = async (productId) => {
     try {
       await axios.post(
@@ -58,15 +58,18 @@ function Shop() {
           {products.length > 0 ? (
             products.map((product) => (
               <div key={product._id} className="shop-card">
-                
                 <div className="shop-card-body">
-                <img src={product.imageUrl}  alt={product.name} className="product-image" />
-
-
-
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="product-image"
+                  />
                   <h5 className="shop-card-title">{product.name}</h5>
                   <p className="shop-card-price">${product.price}</p>
-                  <Link to={`/shop/${product._id}`} className="shop-view-btn">
+                  <Link
+                    to={`/shop/${product._id}`}
+                    className="shop-view-btn"
+                  >
                     View Product
                   </Link>
                   <button

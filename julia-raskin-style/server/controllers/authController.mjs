@@ -1,107 +1,111 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import dotenv from "dotenv";
 import User from "../models/User.mjs";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-dotenv.config();
-
-/** 📌 Generate JWT Token */
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
+/**
+ * ✅ Generate JWT Token
+ */
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
 };
 
-/** 📌 Register User */
+/**
+ * ✅ Register User
+ */
 export const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   try {
-    // ✅ Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // ✅ Hash password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await User.create({
+    const newUser = await User.create({
       name,
       email,
-      password: hashedPassword, // Store the hashed password
-      isAdmin: false,
+      password: hashedPassword,
+      role: role || "user"
     });
-
-    // ✅ Generate token
-    const token = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET,
-      { expiresIn: "30d" }
-    );
 
     res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      token,
+      message: "User registered successfully",
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role
+      },
+      token: generateToken(newUser)
     });
   } catch (error) {
-    console.error("❌ Registration Error:", error.message);
-    res.status(500).json({ message: "Server error" });
+    console.error(error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
-/** 📌 Login User */
+/**
+ * ✅ Login User
+ */
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  console.log("🔍 Login Attempt:", email, password);
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // ✅ Generate JWT Token
-    const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
-    });
-
-    // ✅ Set Cookie with Token (For Server-Side Auth)
-    res.cookie("jwt", token, { 
-      httpOnly: true, 
-      secure: false, // Set to true if using HTTPS
-      sameSite: "Strict" 
-    });
-
-    // ✅ Send token explicitly for Frontend to access
     res.status(200).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      token, // Explicitly send token in response
+      message: "Login successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      },
+      token: generateToken(user)
     });
-
   } catch (error) {
-    console.error("❌ Login Error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error(error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
-/** 📌 Logout User */
-export const logoutUser = (req, res) => {
-  res.cookie("jwt", "", {
+/**
+ * ✅ Logout User
+ */
+ export const logoutUser = (req, res) => {
+  res.clearCookie("token", {
     httpOnly: true,
-    expires: new Date(0),
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
   });
+  res.status(200).json({ message: "Logged out successfully" });
+};
 
-  res.json({ message: "User logged out successfully" });
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
 };

@@ -4,46 +4,24 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
   role: {
     type: String,
-    enum: ["user", "admin"],  // ✅ Role-based Access Control
-    default: "user",          // Default to user
+    enum: ["admin", "user"],
+    default: "user", // Default role is 'user'
   },
-  cart: [
-    {
-      product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
-      },
-      quantity: {
-        type: Number,
-        required: true,
-        default: 1,
-      },
-    },
-  ],
 }, { timestamps: true });
 
-// ✅ Password Hashing Middleware
+// Password Encryption
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+  if (!this.isModified("password")) {
+    next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 const User = mongoose.model("User", userSchema);
-
 export default User;

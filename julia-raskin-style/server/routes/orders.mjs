@@ -1,21 +1,36 @@
 import express from "express";
-import Order from "../models/Order.mjs";
-import { protect } from "../middlewares/authMiddleware.mjs";
+import {
+  placeOrder,
+  getUserOrders,
+  getAllOrders,
+  updateOrderStatus,
+} from "../controllers/orderController.mjs";
+import { protect, admin, userOnly } from "../middlewares/authMiddleware.mjs";
 
 const router = express.Router();
 
 /**
- * 📌 GET /api/orders - Fetch User Orders
- * @desc Retrieves all orders for the logged-in user
- * @access Private (User only)
+ * ✅ Place Order (User Only)
+ * This route allows authenticated users (excluding admin) to place an order.
  */
-router.get("/", protect, async (req, res) => {
-  try {
-    const orders = await Order.find({ user: req.user.id }).populate("items.product", "name price");
-    res.status(200).json(orders);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching orders", error: err.message });
-  }
-});
+router.post("/", protect, userOnly, placeOrder);
+
+/**
+ * ✅ Get User's Orders (User Only)
+ * Retrieves all orders for the logged-in user.
+ */
+router.get("/my-orders", protect, userOnly, getUserOrders);
+
+/**
+ * 🔑 Admin: Get All Orders
+ * Allows admin users to view all orders in the system.
+ */
+router.get("/", protect, admin, getAllOrders);
+
+/**
+ * 🔄 Update Order Status (Admin Only)
+ * Admins can update the status of an order (Processing, Shipped, Delivered).
+ */
+router.put("/:id/status", protect, admin, updateOrderStatus);
 
 export default router;

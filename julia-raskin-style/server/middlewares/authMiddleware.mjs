@@ -1,55 +1,46 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.mjs";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-/** 
- * 📌 Middleware to Protect Routes (User Authentication) 
- * - Supports both Cookie (`req.cookies.jwt`) & Bearer Token (`req.headers.authorization`)
- * - Verifies JWT & attaches user to `req.user`
+/**
+ * ✅ Protect Routes (Authentication Middleware)
  */
 export const protect = async (req, res, next) => {
   let token;
 
-  // ✅ Check for token in cookies or Authorization header
-  if (req.cookies?.jwt) {
-    token = req.cookies.jwt;
-  } else if (req.headers.authorization?.startsWith("Bearer")) {
-    token = req.headers.authorization.split(" ")[1];
-  }
-
-  if (!token) {
-    return res.status(401).json({ message: "Not authorized, no token provided" });
-  }
-
-  try {
-    // 🔹 Verify Token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // 🔹 Find User & Attach to Request
-    req.user = await User.findById(decoded.id).select("-password");
-
-    if (!req.user) {
-      return res.status(401).json({ message: "Not authorized, user not found" });
+  // Check for Authorization header with Bearer token
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+    try {
+      token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select("-password");
+      next();
+    } catch (error) {
+      console.error(error);
+      res.status(401).json({ message: "Unauthorized, token failed" });
     }
-
-    next(); // Proceed to next middleware
-  } catch (error) {
-    console.error("🚨 JWT Verification Error:", error.message);
-    return res.status(401).json({ message: "Not authorized, invalid or expired token" });
+  } else {
+    res.status(401).json({ message: "No token provided" });
   }
 };
 
-/** 
- * 📌 Middleware to Restrict Access to Admins 
- * - Ensures user exists & has `isAdmin` set to `true`
- * - Returns `403 Forbidden` if user is not an admin
+/**
+ * ✅ Admin Only Middleware
  */
- export const adminOnly = (req, res, next) => {
+export const admin = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     next();
   } else {
-    res.status(403).json({ message: "Forbidden: Admins only" });
+    res.status(403).json({ message: "Access denied: Admin only" });
+  }
+};
+
+/**
+ * ✅ User Only Middleware
+ */
+export const userOnly = (req, res, next) => {
+  if (req.user && (req.user.role === "user" || req.user.role === "admin")) {
+    next();
+  } else {
+    res.status(403).json({ message: "Access denied: User only" });
   }
 };

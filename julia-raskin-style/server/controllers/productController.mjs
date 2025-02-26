@@ -8,6 +8,7 @@ export const getProducts = async (req, res) => {
       ...product._doc,
       imageUrl: `${req.protocol}://${req.get("host")}/images/${product.imageUrl}`, // ✅ Correct image URL
     }));
+    res.set("Cache-Control", "no-store");
 
     res.status(200).json(updatedProducts);
   } catch (err) {
@@ -20,6 +21,7 @@ export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
+    res.set("Cache-Control", "no-store");
 
     res.status(200).json({
       ...product._doc,
@@ -49,6 +51,7 @@ export const updateProduct = async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedProduct) return res.status(404).json({ message: "Product not found" });
+    res.set("Cache-Control", "no-store");
 
     res.status(200).json(updatedProduct);
   } catch (err) {

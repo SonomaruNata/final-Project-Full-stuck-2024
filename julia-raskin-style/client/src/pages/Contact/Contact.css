@@ -1,0 +1,83 @@
+/* 🌟 Contact Page Styles */
+.contact-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .contact-page h1 {
+    font-size: 2.5rem;
+    color: #ff4b6e;
+    margin-bottom: 10px;
+  }
+  
+  .contact-page p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 30px;
+  }
+  
+  /* 🌟 Contact Form */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+  }
+  
+  .contact-form input,
+  .contact-form textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ff4b6e;
+    border-radius: 30px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    outline: none;
+    border-color: #ff758c;
+    box-shadow: 0 4px 15px rgba(255, 118, 156, 0.4);
+  }
+  
+  .contact-form textarea {
+    resize: none;
+    min-height: 150px;
+  }
+  
+  .contact-submit-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff758c, #ff4b6e);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 10px 20px rgba(255, 118, 156, 0.4);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  
+  .contact-submit-btn:hover {
+    background: linear-gradient(135deg, #ff4b6e, #ff758c);
+    box-shadow: 0 15px 25px rgba(255, 118, 156, 0.6);
+    transform: translateY(-5px) scale(1.03);
+  }
+  
+  .success-message,
+  .error-message {
+    color: white;
+    background: #ff4b6e;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-weight: bold;
+  }
+  

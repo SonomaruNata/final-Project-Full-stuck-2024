@@ -35,7 +35,8 @@ import Orders from "./pages/User/Orders";
 import EditInfo from "./pages/User/EditInfo";
 import Payment from "./pages/User/Payment";
 import UserCart from "./pages/User/UserCart";
-import ArticleDetail from "./pages/ShoppingSchool/ArticleDetail"; // ✅ Import new page
+import ArticleDetail from "./pages/ShoppingSchool/ArticleDetail"; 
+import Contact from "./pages/Contact/Contact";// ✅ Import new page
 const App = () => {
   return (
     <Router>  {/* ✅ Router wraps everything */}
@@ -53,6 +54,7 @@ const App = () => {
             <Route path="/shopping-school" element={<ShoppingSchool />} />
             <Route path="/shop/:id" element={<ProductDetails />} />
             <Route path="/shopping-school/:id" element={<ArticleDetail />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* 🔐 Admin Routes (Protected) */}
             <Route
