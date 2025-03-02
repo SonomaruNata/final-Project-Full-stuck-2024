@@ -1,6 +1,7 @@
 import Product from "../models/Product.mjs";
 import Order from "../models/Order.mjs";
 import Article from "../models/Article.mjs";
+import User from "../models/User.mjs";
 
 /**
  * ✅ Update a Product (Admin Only)
@@ -14,14 +15,11 @@ export const updateProduct = async (req, res) => {
     ).lean();
 
     if (!updatedProduct) {
-      console.error(`❌ Product not found for ID: ${req.params.id}`);
       return res.status(404).json({ message: "Product not found" });
     }
 
-    console.log(`✅ Product Updated: ${updatedProduct.name}`);
     res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
   } catch (err) {
-    console.error(`❌ Error updating product: ${err.message}`);
     res.status(500).json({ message: "Error updating product", error: err.message });
   }
 };
@@ -34,14 +32,11 @@ export const deleteProduct = async (req, res) => {
     const deletedProduct = await Product.findByIdAndDelete(req.params.id).lean();
 
     if (!deletedProduct) {
-      console.error(`❌ Product not found for ID: ${req.params.id}`);
       return res.status(404).json({ message: "Product not found" });
     }
 
-    console.log(`✅ Product Deleted: ${deletedProduct.name}`);
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (err) {
-    console.error(`❌ Error deleting product: ${err.message}`);
     res.status(500).json({ message: "Error deleting product", error: err.message });
   }
 };
@@ -56,28 +51,40 @@ export const manageOrders = async (req, res) => {
       .populate("items.product", "name price imageUrl")
       .lean();
 
-    console.log("✅ Orders fetched successfully");
     res.status(200).json(orders);
   } catch (err) {
-    console.error(`❌ Error fetching orders: ${err.message}`);
     res.status(500).json({ message: "Error fetching orders", error: err.message });
   }
 };
 
 /**
- * ✅ Fetch All Articles
+ * ✅ Fetch All Users (Admin Only)
+ */
+export const manageUsers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .select("-password")
+      .populate("orders", "total status createdAt")
+      .lean();
+
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching users", error: err.message });
+  }
+};
+
+/**
+ * ✅ Fetch All Articles (Admin Only)
  */
 export const manageArticles = async (req, res) => {
   try {
     const articles = await Article.find()
       .populate("author", "name email")
-      .select("-__v") // Exclude unnecessary fields
+      .select("-__v")
       .lean();
 
-    console.log("✅ Articles fetched successfully");
     res.status(200).json(articles);
   } catch (err) {
-    console.error(`❌ Error fetching articles: ${err.message}`);
     res.status(500).json({ message: "Error fetching articles", error: err.message });
   }
 };

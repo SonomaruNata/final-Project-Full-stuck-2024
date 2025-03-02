@@ -1,4 +1,3 @@
-// src/pages/Admin/AdminDashboard.js
 import React from "react";
 import ManageUsers from "./ManageUsers";
 import ManageProducts from "./ManageProducts";
@@ -11,7 +10,7 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dashboard">
       <h1>Admin Dashboard</h1>
-      <div className="admin-cards">
+      <div className="admin-grid">
         <div className="admin-card">
           <FaUsers className="admin-icon" />
           <h3>Manage Users</h3>

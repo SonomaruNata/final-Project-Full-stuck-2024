@@ -1,9 +1,11 @@
 import User from "../models/User.mjs";
 import bcrypt from "bcryptjs";
+import { validateRequest } from "../middlewares/validateMiddleware.mjs";
+import { updateUserSchema, userRoleSchema } from "../middlewares/validationSchemas.mjs";
 
 /**
- * ✅ Get User Profile
- * - Logged-in users can view their own profile.
+ * ✅ **Get User Profile**
+ * - Allows logged-in users to view their profile.
  */
 export const getUserProfile = async (req, res) => {
   try {
@@ -23,60 +25,57 @@ export const getUserProfile = async (req, res) => {
 };
 
 /**
- * ✅ Update User Profile
- * - Logged-in users can update their own profile.
+ * ✅ **Update User Profile**
+ * - Allows logged-in users to update their profile.
  */
 export const updateUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    validateRequest(updateUserSchema)(req, res, async () => {
+      const user = await User.findById(req.user.id);
 
-    if (!user) {
-      console.error("❌ User not found");
-      return res.status(404).json({ message: "User not found" });
-    }
+      if (!user) {
+        console.error("❌ User not found");
+        return res.status(404).json({ message: "User not found" });
+      }
 
-    // ✅ Update Basic Information
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
-    user.birthday = req.body.birthday || user.birthday;
+      // ✅ Update Basic Information
+      user.name = req.body.name || user.name;
+      user.email = req.body.email || user.email;
+      user.birthday = req.body.birthday || user.birthday;
 
-    // ✅ Update Address
-    if (req.body.address) {
-      user.address = {
-        ...user.address,
-        ...req.body.address,
-      };
-    }
+      // ✅ Update Address
+      if (req.body.address) {
+        user.address = { ...user.address, ...req.body.address };
+      }
 
-    // ✅ Update Payment Preferences
-    if (req.body.paymentPreferences) {
-      user.paymentPreferences = {
-        ...user.paymentPreferences,
-        ...req.body.paymentPreferences,
-      };
-    }
+      // ✅ Update Payment Preferences
+      if (req.body.paymentPreferences) {
+        user.paymentPreferences = {
+          ...user.paymentPreferences,
+          ...req.body.paymentPreferences,
+        };
+      }
 
-    // ✅ Hash and Update Password (if provided)
-    if (req.body.password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(req.body.password, salt);
-    }
+      // ✅ Hash and Update Password (if provided)
+      if (req.body.password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(req.body.password, salt);
+      }
 
-    const updatedUser = await user.save();
-    console.log(`✅ User Profile Updated: ${updatedUser.email}`);
+      const updatedUser = await user.save();
+      console.log(`✅ Profile Updated: ${updatedUser.email}`);
 
-    res.status(200).json({
-      message: "Profile updated successfully",
-      user: {
-        id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        birthday: updatedUser.birthday,
-        address: updatedUser.address,
-        paymentPreferences: {
-          cardHolderName: updatedUser.paymentPreferences.cardHolderName,
+      res.status(200).json({
+        message: "Profile updated successfully",
+        user: {
+          id: updatedUser._id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          birthday: updatedUser.birthday,
+          address: updatedUser.address,
+          paymentPreferences: updatedUser.paymentPreferences,
         },
-      },
+      });
     });
   } catch (error) {
     console.error(`❌ Update User Profile Error: ${error.message}`);
@@ -85,8 +84,8 @@ export const updateUserProfile = async (req, res) => {
 };
 
 /**
- * 🔑 Admin: Get All Users
- * - Admins can view all registered users.
+ * 🔑 **Admin: Get All Users**
+ * - Allows admins to view all registered users.
  */
 export const getAllUsers = async (req, res) => {
   try {
@@ -101,29 +100,31 @@ export const getAllUsers = async (req, res) => {
 };
 
 /**
- * 🔑 Admin: Update User Role
- * - Admins can update user roles (e.g., promote to admin).
+ * 🔑 **Admin: Update User Role**
+ * - Allows admins to update user roles (e.g., promote to admin).
  */
 export const updateUserRole = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    validateRequest(userRoleSchema)(req, res, async () => {
+      const user = await User.findById(req.params.id);
 
-    if (!user) {
-      console.error("❌ User not found");
-      return res.status(404).json({ message: "User not found" });
-    }
+      if (!user) {
+        console.error("❌ User not found");
+        return res.status(404).json({ message: "User not found" });
+      }
 
-    // Prevent Admins from demoting themselves
-    if (user._id.toString() === req.user.id) {
-      console.error("❌ Admin cannot demote themselves");
-      return res.status(400).json({ message: "You cannot change your own role" });
-    }
+      // Prevent Admins from demoting themselves
+      if (user._id.toString() === req.user.id) {
+        console.error("❌ Admin cannot demote themselves");
+        return res.status(400).json({ message: "You cannot change your own role" });
+      }
 
-    user.role = req.body.role;
-    await user.save();
-    console.log(`✅ User Role Updated: ${user.email}`);
+      user.role = req.body.role;
+      await user.save();
+      console.log(`✅ User Role Updated: ${user.email}`);
 
-    res.status(200).json({ message: "User role updated successfully" });
+      res.status(200).json({ message: "User role updated successfully" });
+    });
   } catch (error) {
     console.error(`❌ Update User Role Error: ${error.message}`);
     res.status(500).json({ message: "Server Error", error: error.message });
@@ -131,8 +132,8 @@ export const updateUserRole = async (req, res) => {
 };
 
 /**
- * 🔑 Admin: Delete User
- * - Admins can delete user accounts.
+ * 🔑 **Admin: Delete User**
+ * - Allows admins to delete user accounts.
  */
 export const deleteUser = async (req, res) => {
   try {

@@ -2,7 +2,6 @@ import Article from "../models/Article.mjs";
 
 /**
  * ✅ Get All Articles (Public)
- * - Anyone can view articles.
  */
 export const getArticles = async (req, res) => {
   try {
@@ -17,13 +16,11 @@ export const getArticles = async (req, res) => {
 
 /**
  * ✅ Get Single Article (Public)
- * - Anyone can view a specific article by its ID.
  */
 export const getArticleById = async (req, res) => {
   try {
     const article = await Article.findById(req.params.id).populate("author", "name").lean();
     if (!article) {
-      console.error("❌ Article Not Found");
       return res.status(404).json({ message: "Article not found" });
     }
     console.log(`✅ Fetched Article: ${article.title}`);
@@ -36,14 +33,13 @@ export const getArticleById = async (req, res) => {
 
 /**
  * ✅ Create Article (Protected + Admin Only)
- * - Only authenticated admin users can create articles.
  */
 export const createArticle = async (req, res) => {
   try {
     const newArticle = new Article({
       title: req.body.title,
       content: req.body.content,
-      author: req.user.id,  // ✅ Author is the logged-in user
+      author: req.user.id, // ✅ Author is the logged-in user
       imageUrl: req.body.imageUrl,
       gallery: req.body.gallery || [],
     });
@@ -59,16 +55,12 @@ export const createArticle = async (req, res) => {
 
 /**
  * ✅ Update Article (Protected + Admin Only)
- * - Only authenticated admin users can update articles.
  */
 export const updateArticle = async (req, res) => {
   try {
-    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
     if (!updatedArticle) {
-      console.error("❌ Article Not Found");
       return res.status(404).json({ message: "Article not found" });
     }
 
@@ -82,14 +74,12 @@ export const updateArticle = async (req, res) => {
 
 /**
  * ✅ Delete Article (Protected + Admin Only)
- * - Only authenticated admin users can delete articles.
  */
 export const deleteArticle = async (req, res) => {
   try {
     const deletedArticle = await Article.findByIdAndDelete(req.params.id);
 
     if (!deletedArticle) {
-      console.error("❌ Article Not Found");
       return res.status(404).json({ message: "Article not found" });
     }
 

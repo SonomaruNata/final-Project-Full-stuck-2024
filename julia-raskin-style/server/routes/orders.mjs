@@ -1,62 +1,70 @@
-// server/routes/orders.mjs
 import express from "express";
 import {
   placeOrder,
   getUserOrders,
   getAllOrders,
   updateOrderStatus,
-  getOrderById
+  getOrderById,
 } from "../controllers/orderController.mjs";
-import { protect, adminOnly, userOnly } from "../middlewares/authMiddleware.mjs";
+import {
+  protect,
+  adminOnly,
+  userOnly,
+} from "../middlewares/validateMiddleware.mjs"; // ✅ Fixed incorrect import path
 
 const router = express.Router();
 
-/** 
- * 👤 User Routes 
- * - Only logged-in users (non-admin) can access these routes.
+/**
+ * 👤 **User Routes**
  */
 
-// ✅ Place Order (User Only)
+// ✅ **Place Order (User Only)**
 router.post("/", protect, userOnly, placeOrder);
 
-// ✅ Get User's Orders (User Only)
+// ✅ **Get User's Orders (User Only)**
 router.get("/my-orders", protect, userOnly, getUserOrders);
 
-// ✅ Get Specific Order (User Only) - User can only view their own order
-router.get("/my-orders/:id", protect, userOnly, async (req, res, next) => {
+// ✅ **Get Specific Order (User Only)**
+router.get("/my-orders/:id", protect, userOnly, async (req, res) => {
   try {
     const order = await getOrderById(req.params.id);
 
-    // 🚫 Access Control: Only allow order owner to view it
-    if (order.user.toString() !== req.user.id) {
+    // 🚫 **Access Control: Only allow order owner to view it**
+    if (!order || order.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Access denied: Not your order" });
     }
 
     res.status(200).json(order);
   } catch (error) {
-    next(error);
+    console.error("❌ Error fetching order:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-/** 
- * 🔑 Admin Routes 
- * - Only admin users can access these routes.
+/**
+ * 🔑 **Admin Routes**
  */
 
-// 🔑 Get All Orders (Admin Only)
+// 🔑 **Get All Orders (Admin Only)**
 router.get("/", protect, adminOnly, getAllOrders);
 
-// 🔑 Get Specific Order (Admin Only)
-router.get("/:id", protect, adminOnly, async (req, res, next) => {
+// 🔑 **Get Specific Order (Admin Only)**
+router.get("/:id", protect, adminOnly, async (req, res) => {
   try {
     const order = await getOrderById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
     res.status(200).json(order);
   } catch (error) {
-    next(error);
+    console.error("❌ Error fetching order:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 🔑 Update Order Status (Admin Only)
+// 🔑 **Update Order Status (Admin Only)**
 router.put("/:id/status", protect, adminOnly, updateOrderStatus);
 
 export default router;

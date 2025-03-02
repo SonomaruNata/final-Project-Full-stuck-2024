@@ -1,23 +1,24 @@
-// src/components/Navbar.js
 import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext"; // ✅ Fixed Import
 import JuliaImages from "../assets/images/about/JuliaImages";
 import "./Navbar.css";
 
 const Navbar = () => {
-  const { user, handleLogout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext); // ✅ Using `logout` from AuthContext
   const navigate = useNavigate();
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
 
-  const logout = () => {
-    handleLogout();
-    navigate("/login");  // Redirect to login page after logout
+  // ✅ Handle Logout
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login"); // Redirect after logout
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark sticky-top custom-navbar">
       <div className="container">
+        {/* ✅ Brand Logo */}
         <Link className="navbar-brand" to="/">
           <img
             src={JuliaImages.brandLogo}
@@ -27,6 +28,7 @@ const Navbar = () => {
           Julia Raskin Style
         </Link>
 
+        {/* ✅ Mobile Navbar Toggle */}
         <button
           className="navbar-toggler"
           type="button"
@@ -38,9 +40,10 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
 
+        {/* ✅ Navbar Links */}
         <div className={`collapse navbar-collapse ${isNavCollapsed ? "" : "show"}`} id="navbarNav">
-          <ul className="navbar-nav ml-auto">
-            {/* ✅ Public Links */}
+          <ul className="navbar-nav ms-auto">
+            {/* 🌍 Public Links */}
             <li className="nav-item">
               <Link className="nav-link" to="/">Home</Link>
             </li>
@@ -57,21 +60,21 @@ const Navbar = () => {
               <Link className="nav-link" to="/cart">Cart</Link>
             </li>
 
-            {/* ✅ Admin Links */}
-            {user?.isAdmin && (
+            {/* 🔐 Admin Links */}
+            {user?.role === "admin" && (
               <li className="nav-item">
                 <Link className="nav-link" to="/admin">Admin Dashboard</Link>
               </li>
             )}
 
-            {/* ✅ User Links */}
-            {user && !user.isAdmin && (
+            {/* 👤 User Dashboard */}
+            {user && user.role !== "admin" && (
               <li className="nav-item">
                 <Link className="nav-link" to="/user/dashboard">User Dashboard</Link>
               </li>
             )}
 
-            {/* ✅ Auth Links */}
+            {/* 🔑 Authentication Links */}
             {!user ? (
               <>
                 <li className="nav-item">
@@ -83,7 +86,7 @@ const Navbar = () => {
               </>
             ) : (
               <li className="nav-item">
-                <button className="nav-link btn btn-danger" onClick={logout}>Logout</button>
+                <button className="nav-link btn btn-danger" onClick={handleLogout}>Logout</button>
               </li>
             )}
           </ul>

@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext"; // ✅ Correct Import
 import "./Login.css";
 
 const Login = () => {
@@ -11,13 +11,13 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Form Validation with Yup
+  // ✅ Form Validation Schema
   const validationSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email format").required("Email is required"),
     password: Yup.string().min(6, "Password must be at least 6 characters long").required("Password is required"),
   });
 
-  // ✅ Submit Handler
+  // ✅ Login Handler
   const handleSubmit = async (values, { setSubmitting }) => {
     setError("");
     setLoading(true);
@@ -25,11 +25,9 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
-        credentials: "include", // ✅ Include cookies
+        credentials: "include",
       });
 
       const data = await response.json();

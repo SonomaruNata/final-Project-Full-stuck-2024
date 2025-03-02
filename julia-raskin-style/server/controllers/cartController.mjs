@@ -1,117 +1,96 @@
-// server/controllers/cartController.mjs
 import Cart from "../models/Cart.mjs";
 import Product from "../models/Product.mjs";
-import Order from "../models/Order.mjs";
+import { validateRequest } from "../middlewares/validateMiddleware.mjs";
+import { cartSchema } from "../middlewares/validationSchemas.mjs";
 
 /**
- * ✅ Get Cart Items
- */
-export const getCart = async (req, res) => {
-  try {
-    const cart = await Cart.findOne({ user: req.user.id }).populate("items.product");
-    if (!cart || cart.items.length === 0) {
-      return res.status(200).json({ message: "Your cart is empty", items: [] });
-    }
-    res.status(200).json({ items: cart.items });
-  } catch (error) {
-    console.error("❌ Error getting cart:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-};
-
-/**
- * ✅ Add to Cart
+ * ✅ **Add Product to Cart**
+ * - Adds a product to the user's cart (creates a cart if one doesn't exist)
  */
 export const addToCart = async (req, res) => {
   try {
-    const { productId, quantity } = req.body;
-    const userId = req.user.id;
+    // ✅ Validate input using Joi schema
+    validateRequest(cartSchema)(req, res, async () => {
+      const { productId, quantity } = req.body;
 
-    // Check if product exists
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+      // ✅ Check if product exists
+      const product = await Product.findById(productId).lean();
+      if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // Check if stock is sufficient
-    if (product.stock < quantity) {
-      return res.status(400).json({ message: "Insufficient stock" });
-    }
+      let cart = await Cart.findOne({ user: req.user.id });
 
-    // Find or create the user's cart
-    let cart = await Cart.findOne({ user: userId });
-    if (!cart) {
-      cart = new Cart({ user: userId, items: [] });
-    }
+      if (!cart) {
+        cart = new Cart({ user: req.user.id, items: [] });
+      }
 
-    // Check if product is already in cart
-    const existingItem = cart.items.find(
-      (item) => item.product.toString() === productId
-    );
+      const itemIndex = cart.items.findIndex((item) => item.product.toString() === productId);
 
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      cart.items.push({ product: productId, quantity });
-    }
+      if (itemIndex > -1) {
+        cart.items[itemIndex].quantity += quantity;
+      } else {
+        cart.items.push({ product: productId, quantity });
+      }
 
-    await cart.save();
-    res.status(200).json({ message: "Product added to cart", cart });
-  } catch (error) {
-    console.error("❌ Error adding to cart:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+      await cart.save();
+      res.status(200).json({ message: "Product added to cart", cart });
+    });
+  } catch (err) {
+    console.error("❌ Add to Cart Error:", err.message);
+    res.status(500).json({ message: "Error adding to cart", error: err.message });
   }
 };
 
 /**
- * ✅ Checkout Cart Function
+ * ✅ **Get User Cart**
+ * - Retrieves the authenticated user's cart
  */
-export const checkoutCart = async (req, res) => {
+export const getCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const cart = await Cart.findOne({ user: req.user.id }).populate("items.product").lean();
+    if (!cart) return res.status(200).json({ items: [] });
 
-    // Find user's cart
-    const cart = await Cart.findOne({ user: userId }).populate("items.product");
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: "Your cart is empty" });
-    }
-
-    // Check stock and calculate total
-    let total = 0;
-    for (let item of cart.items) {
-      const product = await Product.findById(item.product._id);
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-
-      if (product.stock < item.quantity) {
-        return res.status(400).json({ message: `${product.name} is out of stock` });
-      }
-
-      total += product.price * item.quantity;
-
-      // Reduce stock
-      product.stock -= item.quantity;
-      await product.save();
-    }
-
-    // Create a new order
-    const newOrder = new Order({
-      user: userId,
-      items: cart.items,
-      total,
-    });
-
-    await newOrder.save();
-
-    // Clear user's cart
-    cart.items = [];
-    await cart.save();
-
-    res.status(200).json({ message: "Checkout successful", order: newOrder });
-  } catch (error) {
-    console.error("❌ Error during checkout:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(200).json(cart);
+  } catch (err) {
+    console.error("❌ Get Cart Error:", err.message);
+    res.status(500).json({ message: "Error fetching cart", error: err.message });
   }
 };
 
+/**
+ * ✅ **Remove Item from Cart**
+ * - Removes a specific product from the user's cart
+ */
+export const removeFromCart = async (req, res) => {
+  try {
+    let cart = await Cart.findOne({ user: req.user.id });
+    if (!cart) return res.status(404).json({ message: "Cart not found" });
+
+    const initialItemsCount = cart.items.length;
+
+    cart.items = cart.items.filter((item) => item.product.toString() !== req.params.productId);
+
+    if (cart.items.length === initialItemsCount) {
+      return res.status(404).json({ message: "Product not found in cart" });
+    }
+
+    await cart.save();
+    res.status(200).json({ message: "Product removed from cart", cart });
+  } catch (err) {
+    console.error("❌ Remove from Cart Error:", err.message);
+    res.status(500).json({ message: "Error removing item", error: err.message });
+  }
+};
+
+/**
+ * ✅ **Clear Cart**
+ * - Clears all items from the user's cart
+ */
+export const clearCart = async (req, res) => {
+  try {
+    await Cart.findOneAndDelete({ user: req.user.id });
+    res.status(200).json({ message: "Cart cleared successfully" });
+  } catch (err) {
+    console.error("❌ Clear Cart Error:", err.message);
+    res.status(500).json({ message: "Error clearing cart", error: err.message });
+  }
+};

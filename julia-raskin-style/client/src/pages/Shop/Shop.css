@@ -22,63 +22,66 @@
 /* 🌟 Product Grid */
 .shop-products {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 10px;
 }
 
 /* 🌟 Product Card */
 .shop-card {
   background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease-in-out;
   text-align: center;
-  padding: 20px;
+  padding: 15px;
   position: relative;
 }
 
 .shop-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
 }
 
 .product-image {
   width: 100%;
-  height: 300px;
+  height: 280px;
   object-fit: cover;
-  border-radius: 15px;
+  border-radius: 12px;
   transition: transform 0.3s ease;
 }
 
 .shop-card:hover .product-image {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 /* 🌟 Product Details */
 .shop-card-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: #333;
-  margin: 15px 0 5px;
-  font-weight: bold;
+  margin: 10px 0;
+  font-weight: 600;
 }
 
 .shop-card-price {
   font-size: 1.2rem;
   color: #ff4b6e;
-  margin-bottom: 15px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 /* 🌟 Buttons */
 .shop-view-btn,
 .shop-add-to-cart-btn {
   display: inline-block;
-  padding: 10px 20px;
+  padding: 10px 16px;
   border-radius: 50px;
   font-size: 1rem;
   text-decoration: none;
   transition: all 0.3s ease;
   cursor: pointer;
+  margin-top: 10px;
 }
 
 .shop-view-btn {
@@ -95,14 +98,13 @@
 .shop-add-to-cart-btn {
   background: linear-gradient(135deg, #ff758c, #ff4b6e);
   color: white;
-  box-shadow: 0 10px 20px rgba(255, 118, 156, 0.4);
-  margin-top: 10px;
+  box-shadow: 0 8px 15px rgba(255, 118, 156, 0.4);
 }
 
 .shop-add-to-cart-btn:hover {
   background: linear-gradient(135deg, #ff4b6e, #ff758c);
-  box-shadow: 0 15px 25px rgba(255, 118, 156, 0.6);
-  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 12px 20px rgba(255, 118, 156, 0.6);
+  transform: translateY(-4px);
 }
 
 /* 🌟 Responsive Design */
@@ -112,6 +114,6 @@
   }
 
   .product-image {
-    height: 250px;
+    height: 220px;
   }
 }
