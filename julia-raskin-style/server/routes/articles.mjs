@@ -1,8 +1,7 @@
-// server/routes/articles.mjs
 import express from "express";
 import {
   getArticles,
-  getArticleById,        // ✅ Import this function
+  getArticleById,
   createArticle,
   updateArticle,
   deleteArticle,
@@ -13,12 +12,10 @@ const router = express.Router();
 
 // ✅ Public Routes (Anyone can read articles)
 router.get("/", getArticles);
-router.get("/:id", getArticleById);   // ✅ Route for getting single article
+router.get("/:id", getArticleById);
 
-// ✅ Protected Routes (Only logged-in users can create)
-router.post("/", protect, createArticle);
-
-// ✅ Admin Routes (Only admins can update/delete)
+// ✅ Admin Routes (Only admins can create, update, delete)
+router.post("/", protect, adminOnly, createArticle);
 router.put("/:id", protect, adminOnly, updateArticle);
 router.delete("/:id", protect, adminOnly, deleteArticle);
 

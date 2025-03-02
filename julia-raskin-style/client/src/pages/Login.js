@@ -1,25 +1,20 @@
-// src/pages/Login.js
 import React, { useState, useContext } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup"; // ✅ Validation with Yup
+import * as Yup from "yup";
 import { useNavigate, Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
-import "./Login.css"; // ✅ Fancy UI Styles
+import "./Login.css";
 
 const Login = () => {
-  const { handleLogin } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // ✅ Form Validation with Yup
   const validationSchema = Yup.object().shape({
-    email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters long")
-      .required("Password is required"),
+    email: Yup.string().email("Invalid email format").required("Email is required"),
+    password: Yup.string().min(6, "Password must be at least 6 characters long").required("Password is required"),
   });
 
   // ✅ Submit Handler
@@ -28,10 +23,27 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await handleLogin(values); 
-    } catch (error) {
-      console.error("❌ Login Failed:", error);
-      setError(error.response?.data?.message || "Invalid email or password.");
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+        credentials: "include", // ✅ Include cookies
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        setUser(data.user);
+        navigate("/");
+      } else {
+        setError(data.message || "Invalid email or password.");
+      }
+    } catch (err) {
+      console.error("❌ Login Failed:", err);
+      setError("Server error. Please try again later.");
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -54,20 +66,12 @@ const Login = () => {
           {({ isSubmitting }) => (
             <Form>
               <div className="input-group">
-                <Field
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                />
+                <Field type="email" name="email" placeholder="Enter your email" />
                 <ErrorMessage name="email" component="div" className="error-message" />
               </div>
 
               <div className="input-group">
-                <Field
-                  type="password"
-                  name="password"
-                  placeholder="Enter your password"
-                />
+                <Field type="password" name="password" placeholder="Enter your password" />
                 <ErrorMessage name="password" component="div" className="error-message" />
               </div>
 

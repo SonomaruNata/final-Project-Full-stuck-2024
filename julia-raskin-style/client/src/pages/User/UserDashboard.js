@@ -1,54 +1,39 @@
-// src/pages/User/UserDashboard.js
-import React, { useState } from "react";
-import EditInfo from "./EditInfo";
-import Orders from "./Orders";
-import UserCart from "./UserCart";
-import Payment from "./Payment";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./UserDashboard.css";
-import { FaUser, FaBoxOpen, FaShoppingCart, FaCreditCard } from "react-icons/fa";
 
-const UserDashboard = () => {
-  const [activeTab, setActiveTab] = useState("profile");
+function UserDashboard() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/users/profile", {
+          withCredentials: true,
+        });
+        setUser(response.data);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
+    };
+    fetchUser();
+  }, []);
 
   return (
     <div className="user-dashboard">
-      <h1>Your Account</h1>
-      <nav className="dashboard-nav">
-        <button
-          className={activeTab === "profile" ? "active" : ""}
-          onClick={() => setActiveTab("profile")}
-        >
-          <FaUser /> Profile
-        </button>
-        <button
-          className={activeTab === "orders" ? "active" : ""}
-          onClick={() => setActiveTab("orders")}
-        >
-          <FaBoxOpen /> Orders
-        </button>
-        <button
-          className={activeTab === "cart" ? "active" : ""}
-          onClick={() => setActiveTab("cart")}
-        >
-          <FaShoppingCart /> Cart
-        </button>
-        <button
-          className={activeTab === "payment" ? "active" : ""}
-          onClick={() => setActiveTab("payment")}
-        >
-          <FaCreditCard /> Payment
-        </button>
-      </nav>
-
-      <div className="dashboard-content">
-        {activeTab === "profile" && <EditInfo />}
-        {activeTab === "orders" && <Orders />}
-        {activeTab === "cart" && <UserCart />}
-        {activeTab === "payment" && <Payment />}
-      </div>
+      <h2>Welcome, {user?.name}</h2>
+      <p>Email: {user?.email}</p>
+      <p>Birthday: {new Date(user?.birthday).toDateString()}</p>
+      <h3>Address:</h3>
+      <p>{user?.address?.street}</p>
+      <p>{user?.address?.city}, {user?.address?.state} {user?.address?.zipCode}</p>
+      <p>{user?.address?.country}</p>
+      <h3>Payment Preferences:</h3>
+      <p>Card Holder: {user?.paymentPreferences?.cardHolderName}</p>
     </div>
   );
-};
+}
 
 export default UserDashboard;
+
 

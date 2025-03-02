@@ -14,10 +14,12 @@ function Shop() {
     const fetchProducts = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/products");
+
+        console.log("✅ Fetched Products:", response.data); // ✅ Debug Logging
         setProducts(response.data);
       } catch (err) {
         setError("Failed to load products. Please try again.");
-        console.error("Error fetching products:", err);
+        console.error("❌ Error fetching products:", err);
       } finally {
         setLoading(false);
       }
@@ -66,10 +68,7 @@ function Shop() {
                   />
                   <h5 className="shop-card-title">{product.name}</h5>
                   <p className="shop-card-price">${product.price}</p>
-                  <Link
-                    to={`/shop/${product._id}`}
-                    className="shop-view-btn"
-                  >
+                  <Link to={`/shop/${product._id}`} className="shop-view-btn">
                     View Product
                   </Link>
                   <button

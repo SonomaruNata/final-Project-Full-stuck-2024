@@ -1,68 +1,88 @@
-import React, { useState, useEffect } from "react";
-import axiosInstance from "../../axiosInstance";
-import { useNavigate } from "react-router-dom";
-import "../../styles/Profile.css"; // ✅ Ensure Profile Styles
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./Profile.css";
 
-const Profile = () => {
-  const [userData, setUserData] = useState({ name: "", email: "" });
+function Profile() {
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+    birthday: "",
+    address: {
+      street: "",
+      city: "",
+    },
+  });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        console.warn("⚠️ No authentication token found!");
-        setError("You need to log in to view your profile.");
-        setLoading(false);
-        return;
-      }
-
+    const fetchUser = async () => {
       try {
-        const response = await axiosInstance.get("/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await axios.get("http://localhost:5000/api/users/profile", {
+          withCredentials: true,
         });
-
-        setUserData({ name: response.data.name, email: response.data.email });
+        setUser(response.data);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError("Failed to load user data.");
+      } finally {
         setLoading(false);
-      } catch (error) {
-        console.error("❌ Error fetching profile:", error);
-        setLoading(false);
-
-        if (error.response) {
-          if (error.response.status === 401) {
-            localStorage.removeItem("token"); // ✅ Clear invalid token
-            setError("Session expired. Please log in again.");
-            setTimeout(() => navigate("/login"), 2000); // ✅ Delay redirect for better UX
-          } else {
-            setError("Failed to fetch profile. Please try again later.");
-          }
-        }
       }
     };
+    fetchUser();
+  }, []);
 
-    fetchProfile();
-  }, [navigate]); // ✅ Ensures useEffect only runs when `navigate` changes
+  const updateProfile = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put("http://localhost:5000/api/users/profile", user, {
+        withCredentials: true,
+      });
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setError("Failed to update profile.");
+    }
+  };
+
+  if (loading) return <div className="loader"></div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="profile-container">
-      <h2>User Profile</h2>
-
-      {loading ? (
-        <p className="loading-text">Loading profile...</p>
-      ) : error ? (
-        <p className="error-text">{error}</p>
-      ) : (
-        <div className="profile-details">
-          <p><strong>Name:</strong> {userData.name}</p>
-          <p><strong>Email:</strong> {userData.email}</p>
-        </div>
-      )}
+      <div className="profile-card">
+        <h2>Update Profile</h2>
+        <form onSubmit={updateProfile}>
+          <div className="input-group">
+            <input
+              type="text"
+              value={user.name}
+              onChange={(e) => setUser({ ...user, name: e.target.value })}
+              placeholder="Name"
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="email"
+              value={user.email}
+              onChange={(e) => setUser({ ...user, email: e.target.value })}
+              placeholder="Email"
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="date"
+              value={user.birthday}
+              onChange={(e) => setUser({ ...user, birthday: e.target.value })}
+            />
+          </div>
+          <button type="submit" className="update-btn">
+            Update
+          </button>
+        </form>
+      </div>
     </div>
   );
-};
+}
 
 export default Profile;

@@ -5,7 +5,7 @@ import {
   manageOrders,
   manageArticles,
 } from "../controllers/adminController.mjs";
-import { protect, adminOnly } from "../middlewares/authMiddleware.mjs"; 
+import { protect, adminOnly } from "../middlewares/authMiddleware.mjs";
 
 const router = express.Router();
 

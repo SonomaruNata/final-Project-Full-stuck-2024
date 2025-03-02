@@ -1,0 +1,119 @@
+/* 🌈 Background */
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #89fffd, #ef32d9);
+    font-family: "Poppins", sans-serif;
+    padding: 20px;
+  }
+  
+  /* 🎨 Profile Card - Glassmorphism */
+  .profile-card {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(15px);
+    animation: fadeIn 0.6s ease-in-out;
+  }
+  
+  h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  
+  .profile-subtitle {
+    font-size: 1rem;
+    color: #f8f8f8;
+    margin-bottom: 20px;
+  }
+  
+  /* ✅ Input Fields - Floating Labels */
+  .input-group {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #fff;
+    transition: all 0.3s ease-in-out;
+    outline: none;
+  }
+  
+  input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  input:focus {
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  
+  /* 🏆 Update Button */
+  .update-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #89fffd, #ef32d9);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .update-btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #72e4e1, #e02ab9);
+    box-shadow: 0 5px 15px rgba(137, 255, 253, 0.3);
+  }
+  
+  .update-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* ⏳ Loading Animation */
+  .loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    border-top: 3px solid transparent;
+    animation: spin 0.7s linear infinite;
+  }
+  
+  /* 🎬 Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  

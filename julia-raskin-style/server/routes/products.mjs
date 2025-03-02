@@ -3,26 +3,40 @@ import {
   getProducts,
   getProductById,
   createProduct,
-  updateProduct,
+  editProduct,
   deleteProduct,
 } from "../controllers/productController.mjs";
 import { protect, adminOnly } from "../middlewares/authMiddleware.mjs";
+import multer from "multer";
+import path from "path";
 
 const router = express.Router();
 
-// ✅ Fetch all products
-router.get("/", getProducts);
+/**
+ * 🌐 Public Routes 
+ * - Anyone can read product information.
+ */
+router.get("/", getProducts);        // ✅ Public Route
+router.get("/:id", getProductById);  // ✅ Public Route
 
-// ✅ Fetch a single product
-router.get("/:id", getProductById);
 
-// ✅ Create a product (Admin Only)
-router.post("/", protect, adminOnly, createProduct);
+// ✅ Image Upload Configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(process.cwd(), "public/images")); // ✅ Save images in `public/images`
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`); // ✅ Unique filenames
+  },
+});
+const upload = multer({ storage });
 
-// ✅ Update a product (Admin Only)
-router.put("/:id", protect, adminOnly, updateProduct);
-
-// ✅ Delete a product (Admin Only)
+/**
+ * 🔐 Admin Routes 
+ * - Only admins can create, update, and delete products.
+ */
+router.post("/", protect, adminOnly, upload.single("image"), createProduct);
+router.put("/:id", protect, adminOnly, upload.single("image"), editProduct);
 router.delete("/:id", protect, adminOnly, deleteProduct);
 
 export default router;

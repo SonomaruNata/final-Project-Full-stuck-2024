@@ -1,5 +1,16 @@
+// server/controllers/orderController.mjs
+
 import Order from "../models/Order.mjs";
 import Cart from "../models/Cart.mjs";
+
+/**
+ * ✅ Get Order by ID (Reusable)
+ */
+export const getOrderById = async (orderId) => {
+  return await Order.findById(orderId)
+    .populate("user", "name email")
+    .populate("items.product");
+};
 
 // 🛒 Place Order
 export const placeOrder = async (req, res) => {

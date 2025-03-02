@@ -13,7 +13,7 @@ import { seedDatabase } from "./seed.mjs";
 import User from "./models/User.mjs";
 import Product from "./models/Product.mjs";
 import Article from "./models/Article.mjs";
-
+import { protect, adminOnly } from "./middlewares/authMiddleware.mjs";
 // ✅ Load environment variables
 dotenv.config();
 
@@ -51,7 +51,23 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
   res.status(200).json({ imageUrl: `/images/${req.file.filename}` });
 });
 
+app.post("/api/upload", protect, adminOnly, upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+  res.status(200).json({ imageUrl: `/images/${req.file.filename}` });
+});
 
+// ✅ Secure Seeding Route (Optional: Only for Admins)
+app.post("/api/seed", protect, adminOnly, async (req, res) => {
+  try {
+    await seedDatabase();
+    res.status(200).json({ message: "Database Seeded Successfully!" });
+  } catch (error) {
+    console.error("❌ Seeding Error:", error.message);
+    res.status(500).json({ message: "Seeding Error", error: error.message });
+  }
+});
 
 
 
@@ -119,26 +135,32 @@ const importRoutes = async () => {
     const { default: productRoutes } = await import("./routes/products.mjs");
     const { default: adminRoutes } = await import("./routes/admin.mjs");
     const { default: shopRoutes } = await import("./routes/shop.mjs");
-    const { default: articleRoutes } = await import("./routes/articles.mjs"); // ✅ Ensure correct import
+    const { default: articleRoutes } = await import("./routes/articles.mjs");
     const { default: contactRoutes } = await import("./routes/contactRoutes.mjs");
     const { default: cartRoutes } = await import("./routes/cart.mjs");
     const { default: orderRoutes } = await import("./routes/orders.mjs");
 
+    // ✅ Public Routes
     app.use("/api/auth", authRoutes);
-    app.use("/api/users", userRoutes);
-    app.use("/api/products", productRoutes);
-    app.use("/api/admin", adminRoutes);
     app.use("/api/shop", shopRoutes);
-    app.use("/api/articles", articleRoutes); // ✅ Correctly registered
+    app.use("/api/articles", articleRoutes);
     app.use("/api/contact", contactRoutes);
     app.use("/api/cart", cartRoutes);
-    app.use("/api/orders", orderRoutes);
+
+    // ✅ Protected Routes
+    app.use("/api/users", protect, userRoutes);
+    app.use("/api/products", protect, productRoutes);
+    app.use("/api/orders", protect, orderRoutes);
+
+    // ✅ Admin Only Routes
+    app.use("/api/admin", protect, adminOnly, adminRoutes);
 
     console.log(chalk.green("✅ All routes have been initialized successfully!"));
   } catch (error) {
     console.error(chalk.red(`❌ Error loading routes: ${error.message}`));
   }
 };
+
 
 // ✅ Ensure MongoDB Connection Before Running
 connectDB();

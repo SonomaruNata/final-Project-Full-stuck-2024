@@ -1,4 +1,3 @@
-// seedDatabase.mjs
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import chalk from "chalk";
@@ -13,7 +12,7 @@ export const seedDatabase = async () => {
   try {
     console.log(chalk.yellow("🔄 Seeding Database..."));
 
-    // ✅ Check & Seed Users
+    // ✅ Seed Users
     const userCount = await User.countDocuments();
     if (userCount === 0) {
       await User.insertMany(users);
@@ -22,7 +21,7 @@ export const seedDatabase = async () => {
       console.log(chalk.yellow("⚠️ Users already exist. Skipping user seeding."));
     }
 
-    // ✅ Check & Seed Products
+    // ✅ Seed Products
     const productCount = await Product.countDocuments();
     if (productCount === 0) {
       await Product.insertMany(products);
@@ -31,14 +30,11 @@ export const seedDatabase = async () => {
       console.log(chalk.yellow("⚠️ Products already exist. Skipping product seeding."));
     }
 
-    // ✅ Check & Seed Articles
-    const articleCount = await Article.countDocuments();
-    if (articleCount === 0) {
-      await Article.insertMany(articles);
-      console.log(chalk.green("✅ Articles Seeded Successfully!"));
-    } else {
-      console.log(chalk.yellow("⚠️ Articles already exist. Skipping article seeding."));
-    }
+    // ✅ Seed Articles
+    console.log(chalk.yellow("🔄 Refreshing Articles Collection..."));
+    await Article.deleteMany({}); // ⛔ Clear Articles Collection
+    await Article.insertMany(articles); // ✅ Seed New Articles
+    console.log(chalk.green("✅ Articles Seeded Successfully!"));
 
     console.log(chalk.blue("🚀 Database Seeding Complete!"));
   } catch (error) {

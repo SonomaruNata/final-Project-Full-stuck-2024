@@ -1,4 +1,3 @@
-// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -20,6 +19,8 @@ import ShoppingSchool from "./pages/ShoppingSchool/ShoppingSchool";
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import ProductDetails from "./pages/Products/ProductDetails";
+import ArticleDetail from "./pages/ShoppingSchool/ArticleDetail";
+import Contact from "./pages/Contact/Contact";
 import NotFound from "./pages/NotFound/NotFound";
 
 // ✅ Import Admin Pages
@@ -35,11 +36,10 @@ import Orders from "./pages/User/Orders";
 import EditInfo from "./pages/User/EditInfo";
 import Payment from "./pages/User/Payment";
 import UserCart from "./pages/User/UserCart";
-import ArticleDetail from "./pages/ShoppingSchool/ArticleDetail"; 
-import Contact from "./pages/Contact/Contact";// ✅ Import new page
+
 const App = () => {
   return (
-    <Router>  {/* ✅ Router wraps everything */}
+    <Router>
       <AuthProvider> {/* ✅ AuthProvider inside Router */}
         <Navbar />
         <main className="py-4">
