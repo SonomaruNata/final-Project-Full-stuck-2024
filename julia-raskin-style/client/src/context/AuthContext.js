@@ -1,36 +1,59 @@
-import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import { createContext, useState, useEffect, useContext, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../axiosInstance";
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
+  const navigate = useNavigate();
+
+  // ✅ Fetch User Data on App Load
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
-          withCredentials: true,
-        });
+        const response = await axiosInstance.get("/auth/me");
         setUser(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data)); // ✅ Sync local storage
       } catch (err) {
-        setUser(null);
+        console.error("⚠️ Failed to fetch user data:", err);
+        handleLogout();
       }
     };
 
-    fetchUser();
+    if (!user) {
+      fetchUser();
+    }
   }, []);
 
-  const handleLogout = async () => {
-    await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/logout`, {}, { withCredentials: true });
-    setUser(null);
-  };
+  // ✅ Logout User
+  const handleLogout = useCallback(async () => {
+    try {
+      await axiosInstance.post("/auth/logout");
+
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      delete axiosInstance.defaults.headers.common["Authorization"];
+
+      navigate("/login");
+    } catch (error) {
+      console.error("❌ Logout failed:", error);
+    }
+  }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, handleLogout }}>
+    <AuthContext.Provider value={{ user, setUser, logout: handleLogout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+// ✅ Custom Hook for Authentication
+export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;

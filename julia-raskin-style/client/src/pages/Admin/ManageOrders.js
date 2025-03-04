@@ -9,7 +9,7 @@ const ManageOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axiosInstance.get("/api/admin/orders");
+        const response = await axiosInstance.get("admin/orders");
         setOrders(response.data);
       } catch (error) {
         console.error("Error fetching orders:", error);

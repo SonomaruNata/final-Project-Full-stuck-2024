@@ -10,7 +10,7 @@ const ManageProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axiosInstance.get("/api/admin/products");
+        const response = await axiosInstance.get("/admin/products");
         setProducts(response.data);
       } catch (err) {
         setError("❌ Failed to load products.");
@@ -26,7 +26,7 @@ const ManageProducts = () => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     
     try {
-      await axiosInstance.delete(`/api/admin/products/${id}`);
+      await axiosInstance.delete(`/admin/products/${id}`);
       setProducts(products.filter((product) => product._id !== id));
     } catch (err) {
       alert("❌ Error deleting product.");

@@ -1,12 +1,13 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import * as Yup from "yup"; // ✅ Corrected import for Yup
 import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // ✅ Correct Import
-import "./Login.css";
+import { useAuth } from "../context/AuthContext"; // ✅ Use AuthContext
+import { login } from "../services/authService"; // ✅ Import login function
+import "./Login.css"; // ✅ Ensure CSS is added for styling
 
 const Login = () => {
-  const { setUser } = useContext(AuthContext);
+  const { setUser } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -23,25 +24,11 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
-        setUser(data.user);
-        navigate("/");
-      } else {
-        setError(data.message || "Invalid email or password.");
-      }
+      const user = await login(values);
+      setUser(user);
+      navigate(user.role === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
-      console.error("❌ Login Failed:", err);
-      setError("Server error. Please try again later.");
+      setError(err.message || "Invalid email or password.");
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -51,7 +38,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>Welcome Back</h2>
+        <h2>Welcome Back 👋</h2>
         <p className="login-subtitle">Sign in to continue shopping</p>
 
         {error && <p className="error-message">{error}</p>}
@@ -62,19 +49,21 @@ const Login = () => {
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
-            <Form>
+            <Form className="login-form">
               <div className="input-group">
+                <label>Email</label>
                 <Field type="email" name="email" placeholder="Enter your email" />
                 <ErrorMessage name="email" component="div" className="error-message" />
               </div>
 
               <div className="input-group">
+                <label>Password</label>
                 <Field type="password" name="password" placeholder="Enter your password" />
                 <ErrorMessage name="password" component="div" className="error-message" />
               </div>
 
-              <button type="submit" className="login-btn" disabled={isSubmitting}>
-                {loading ? "Loading..." : "Login"}
+              <button type="submit" className="login-btn" disabled={isSubmitting || loading}>
+                {loading ? "Logging in..." : "Login"}
               </button>
             </Form>
           )}

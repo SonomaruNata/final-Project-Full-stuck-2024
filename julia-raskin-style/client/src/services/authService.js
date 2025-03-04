@@ -1,45 +1,40 @@
-// src/services/authService.js
 import axiosInstance from "../axiosInstance";
 
-// ✅ Signup Function
-export const signup = async (userData) => {
-  try {
-    const response = await axiosInstance.post("/auth/signup", userData, { withCredentials: true });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: "Signup failed" };
-  }
-};
-
-// ✅ Login Function
+// ✅ User Login
 export const login = async (userData) => {
   try {
-    const response = await axiosInstance.post("/auth/login", userData, { withCredentials: true });
-    const { token, isAdmin, ...userDetails } = response.data;
+    const response = await axiosInstance.post("/auth/login", userData);
+    const { token, user } = response.data;
 
-    // ✅ Store isAdmin flag & Token
-    localStorage.setItem("user", JSON.stringify({ ...userDetails, isAdmin }));
+    if (!user || !user.role) {
+      throw new Error("User role not found.");
+    }
+
+    // ✅ Store User & Token in Local Storage
+    localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
-
-    // ✅ Set default Authorization Header for all requests
     axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    return { ...userDetails, isAdmin }; // ✅ Return user details with isAdmin flag
+    return user; // ✅ Return full user object
   } catch (error) {
+    console.error("❌ Login Failed:", error.response?.data || error.message);
     throw error.response?.data || { message: "Login failed" };
   }
 };
 
-// ✅ Logout Function
+// ✅ User Logout
 export const logout = async () => {
   try {
-    await axiosInstance.post("/auth/logout", {}, { withCredentials: true }); // ✅ Notify server
+    await axiosInstance.post("/auth/logout");
+    
+    // ✅ Remove User & Token from Storage
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-
-    // ✅ Remove default Authorization header
     delete axiosInstance.defaults.headers.common["Authorization"];
+
+    return true;
   } catch (error) {
+    console.error("❌ Logout Failed:", error.response?.data || error.message);
     throw error.response?.data || { message: "Logout failed" };
   }
 };
