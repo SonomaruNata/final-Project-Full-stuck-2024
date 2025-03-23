@@ -10,7 +10,7 @@ const ManageArticles = () => {
   // ✅ Fetch Articles Function
   const fetchArticles = async () => {
     try {
-      const response = await axiosInstance.get("/api/admin/articles"); // ✅ Fixed API path
+      const response = await axiosInstance.get("/admin/articles"); // ✅ Fixed API path
       setArticles(response.data);
     } catch (error) {
       console.error("❌ Error fetching articles:", error);

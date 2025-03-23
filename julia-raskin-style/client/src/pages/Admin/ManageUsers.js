@@ -9,7 +9,7 @@ const ManageUsers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axiosInstance.get("/api/admin/users");
+        const response = await axiosInstance.get("/admin/users");
         setUsers(response.data);
       } catch (err) {
         console.error("❌ Error fetching users:", err);
@@ -24,7 +24,7 @@ const ManageUsers = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      await axiosInstance.delete(`/api/admin/users/${id}`);
+      await axiosInstance.delete(`/admin/users/${id}`);
       setUsers(users.filter((user) => user._id !== id));
     } catch (err) {
       alert("❌ Error deleting user.");

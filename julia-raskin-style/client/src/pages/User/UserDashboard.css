@@ -1,53 +1,85 @@
-/* src/pages/User/UserDashboard.css */
-.user-dashboard {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 30px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.user-dashboard h1 {
-  text-align: center;
-  color: #444;
-  margin-bottom: 20px;
-}
-
-.dashboard-nav {
+/* 🎨 Modern Dashboard Styling */
+.dashboard-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
-  gap: 15px;
-}
-
-.dashboard-nav button {
-  background: #f8f8f8;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s;
-  display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 1rem;
-  color: #444;
-}
-
-.dashboard-nav button.active {
-  background: #007bff;
-  color: #fff;
-}
-
-.dashboard-nav button:hover {
-  background: #007bff;
-  color: #fff;
-}
-
-.dashboard-content {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #89fffd, #ef32d9);
+  font-family: "Poppins", sans-serif;
   padding: 20px;
-  border: 1px solid #eaeaea;
-  border-radius: 5px;
-  background: #fafafa;
+}
+
+/* 📦 Dashboard Card */
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(15px);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.dashboard-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+/* 🔗 Dashboard Links */
+.dashboard-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-link {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.dashboard-link:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+}
+
+/* ⏳ Loading Animation */
+.loader {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  border-top: 3px solid transparent;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

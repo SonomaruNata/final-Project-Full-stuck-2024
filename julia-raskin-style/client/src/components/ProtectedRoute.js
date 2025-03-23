@@ -1,25 +1,16 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children, adminOnly }) => {
-  const { user } = useContext(AuthContext);
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { user, loading } = useContext(AuthContext);
 
-  useEffect(() => {
-    console.log("🛡️ Checking user access:", user);
-  }, [user]);
-
-  if (!user) {
-    console.warn("🚨 User not logged in, redirecting to login.");
-    return <Navigate to="/login" replace />;
-  }
-
-  if (adminOnly && user.role !== "admin") {
-    console.warn("🚨 User is not admin, redirecting to home.");
-    return <Navigate to="/" replace />;
-  }
+  if (loading) return <div className="loading-screen">⏳ Checking authentication...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if (adminOnly && user.role !== "admin") return <Navigate to="/" replace />;
 
   return children;
 };
 
 export default ProtectedRoute;
+

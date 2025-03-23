@@ -18,7 +18,7 @@ function Profile() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users/profile", {
+        const response = await axios.get("http://localhost:5000/users/profile", {
           withCredentials: true,
         });
         setUser(response.data);
@@ -35,7 +35,7 @@ function Profile() {
   const updateProfile = async (e) => {
     e.preventDefault();
     try {
-      await axios.put("http://localhost:5000/api/users/profile", user, {
+      await axios.put("http://localhost:5000/users/profile", user, {
         withCredentials: true,
       });
       alert("Profile updated successfully!");
