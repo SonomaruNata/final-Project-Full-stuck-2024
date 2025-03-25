@@ -10,45 +10,64 @@ import {
   protect,
   adminOnly,
   userOnly,
-} from "../middlewares/validateMiddleware.mjs"; // ✅ Fixed incorrect import path
+} from "../middlewares/validateMiddleware.mjs";
 
 const router = express.Router();
 
-/**
- * 👤 **User Routes**
- */
+/* ------------------------------------------
+ 👤 User Order Routes (Authentication Required)
+---------------------------------------------*/
 
-// ✅ **Place Order (User Only)**
+/**
+ * POST /api/orders
+ * @desc   Place a new order
+ * @access User
+ */
 router.post("/", protect, userOnly, placeOrder);
 
-// ✅ **Get User's Orders (User Only)**
+/**
+ * GET /api/orders/my-orders
+ * @desc   Get all orders for the logged-in user
+ * @access User
+ */
 router.get("/my-orders", protect, userOnly, getUserOrders);
 
-// ✅ **Get Specific Order (User Only)**
+/**
+ * GET /api/orders/my-orders/:id
+ * @desc   Get specific order belonging to the user
+ * @access User
+ */
 router.get("/my-orders/:id", protect, userOnly, async (req, res) => {
   try {
     const order = await getOrderById(req.params.id);
 
-    // 🚫 **Access Control: Only allow order owner to view it**
-    if (!order || order.user.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Access denied: Not your order" });
+    if (!order || String(order.user) !== req.user.id) {
+      return res.status(403).json({ message: "Access denied: This is not your order." });
     }
 
     res.status(200).json(order);
   } catch (error) {
-    console.error("❌ Error fetching order:", error.message);
+    console.error("❌ Failed to fetch user order:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-/**
- * 🔑 **Admin Routes**
- */
+/* ------------------------------------------
+ 🔑 Admin Order Routes
+---------------------------------------------*/
 
-// 🔑 **Get All Orders (Admin Only)**
+/**
+ * GET /api/orders
+ * @desc   Get all orders in the system
+ * @access Admin
+ */
 router.get("/", protect, adminOnly, getAllOrders);
 
-// 🔑 **Get Specific Order (Admin Only)**
+/**
+ * GET /api/orders/:id
+ * @desc   Get specific order by ID
+ * @access Admin
+ */
 router.get("/:id", protect, adminOnly, async (req, res) => {
   try {
     const order = await getOrderById(req.params.id);
@@ -59,12 +78,16 @@ router.get("/:id", protect, adminOnly, async (req, res) => {
 
     res.status(200).json(order);
   } catch (error) {
-    console.error("❌ Error fetching order:", error.message);
+    console.error("❌ Admin order fetch error:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 🔑 **Update Order Status (Admin Only)**
+/**
+ * PUT /api/orders/:id/status
+ * @desc   Update order status (Processing, Shipped, etc.)
+ * @access Admin
+ */
 router.put("/:id/status", protect, adminOnly, updateOrderStatus);
 
 export default router;

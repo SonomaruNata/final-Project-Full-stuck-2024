@@ -1,15 +1,20 @@
 import express from "express";
+import { handleContactForm } from "../controllers/contactController.mjs";
 import {
   validateRequest,
-} from "../middlewares/validateMiddleware.mjs"; // ✅ Ensured correct path
-import { contactSchema } from "../middlewares/validationSchemas.mjs"; // ✅ Moved schema import to the correct place
-import { handleContactForm } from "../controllers/contactController.mjs";
+} from "../middlewares/validateMiddleware.mjs";
+import { contactSchema } from "../middlewares/validationSchemas.mjs";
 
 const router = express.Router();
 
+/* ------------------------------------------
+ 📩 Contact Form Routes
+---------------------------------------------*/
+
 /**
- * 📩 **Contact Form Routes**
- * - `POST /` ➝ Submit contact form (Validation Included)
+ * POST /api/contact
+ * @desc   Handle contact form submission
+ * @access Public
  */
 router.post("/", validateRequest(contactSchema), handleContactForm);
 

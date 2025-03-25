@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import "./Home.css"; // ✅ Import CSS Styles
+import "./Home.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -10,16 +10,16 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ✅ Fetch Products Function
+  // 🛒 Fetch Products
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.get(`${API_URL}/api/products`);
-      setProducts(response.data);
+      const res = await axios.get(`${API_URL}/api/products`);
+      setProducts(res.data.slice(0, 4)); // 🧠 Limit to 4 featured items
     } catch (err) {
       setError("❌ Failed to load products. Please try again.");
-      console.error("❌ Error fetching products:", err);
+      console.error("❌ Fetch Error:", err);
     } finally {
       setLoading(false);
     }
@@ -31,7 +31,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      {/* ✅ Hero Section with Background Image */}
+      {/* 🎯 HERO */}
       <section className="hero-section">
         <div className="hero-content">
           <h1>Julia Raskin Style</h1>
@@ -40,23 +40,23 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ✅ Shop Now Section */}
+      {/* 🛍️ SHOP NOW */}
       <section className="shop-section">
         <h2>Shop Our Exclusive Collections</h2>
         <p>Discover the latest trends and timeless pieces that elevate your wardrobe.</p>
-        <Link to="/shop" className="shop-btn">Shop Now</Link>
+        <Link to="/shop" className="btn shop-btn">Shop Now</Link>
       </section>
 
-      {/* ✅ Shopping School Section */}
+      {/* 🧠 SHOPPING SCHOOL */}
       <section className="shopping-school-section">
         <h2>Want to Learn How to Look Stylish?</h2>
         <p>Discover the secrets of timeless elegance and modern chic.</p>
-        <Link to="/shopping-school" className="learn-more-btn">Learn More</Link>
+        <Link to="/shopping-school" className="btn learn-more-btn">Learn More</Link>
       </section>
 
-      {/* ✅ Featured Products Section */}
+      {/* 🌟 FEATURED PRODUCTS */}
       <section className="featured-products">
-        <h2>EXCLUSIVE COLLECTIONS</h2>
+        <h2>🧵 Exclusive Collections</h2>
 
         {loading ? (
           <p className="loading-message">⏳ Loading products...</p>
@@ -64,13 +64,20 @@ const Home = () => {
           <p className="error-message">{error}</p>
         ) : (
           <div className="product-grid">
-            {products.length > 0 ? (
+            {products.length ? (
               products.map((product) => (
                 <div key={product._id} className="product-card">
-                  <img src={product.imageUrl} alt={product.name} className="product-image" loading="lazy" />
+                  <img
+                    src={product.imageUrl || "/images/placeholder.png"}
+                    alt={product.name}
+                    className="product-image"
+                    loading="lazy"
+                  />
                   <h5 className="product-title">{product.name}</h5>
                   <p className="product-price">${product.price.toFixed(2)}</p>
-                  <Link to={`/shop/${product._id}`} className="view-product-btn">View Product</Link>
+                  <Link to={`/shop/${product._id}`} className="view-product-btn">
+                    View Product
+                  </Link>
                 </div>
               ))
             ) : (

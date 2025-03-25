@@ -1,87 +1,97 @@
-/* 🌟 Shop Page Styles */
+/* 🌟 Shop Container */
 .shop-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+  padding: 40px 20px;
   font-family: 'Poppins', sans-serif;
+  background-color: #fefefe;
+  color: #333;
 }
 
+/* 🌟 Header */
 .shop-header h1 {
   font-size: 3rem;
   color: #ff4b6e;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .shop-header p {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   color: #666;
   margin-bottom: 30px;
+}
+
+.shop-count {
+  font-size: 1rem;
+  color: #aaa;
+  margin-top: -20px;
+  margin-bottom: 20px;
 }
 
 /* 🌟 Product Grid */
 .shop-products {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 25px;
   padding: 10px;
 }
 
 /* 🌟 Product Card */
 .shop-card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 15px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.07);
   transition: all 0.3s ease-in-out;
+  padding: 16px;
   text-align: center;
-  padding: 15px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .shop-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
 }
 
 .product-image {
   width: 100%;
-  height: 280px;
+  height: 260px;
   object-fit: cover;
   border-radius: 12px;
   transition: transform 0.3s ease;
 }
 
 .shop-card:hover .product-image {
-  transform: scale(1.03);
+  transform: scale(1.05);
 }
 
-/* 🌟 Product Details */
+/* 🌟 Product Info */
 .shop-card-title {
-  font-size: 1.4rem;
-  color: #333;
-  margin: 10px 0;
+  font-size: 1.35rem;
+  color: #222;
   font-weight: 600;
+  margin: 14px 0 8px;
 }
 
 .shop-card-price {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #ff4b6e;
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-weight: 700;
 }
 
 /* 🌟 Buttons */
 .shop-view-btn,
 .shop-add-to-cart-btn {
-  display: inline-block;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border-radius: 50px;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   text-decoration: none;
   transition: all 0.3s ease;
   cursor: pointer;
-  margin-top: 10px;
+  margin: 8px auto 4px;
+  display: inline-block;
+  width: 90%;
 }
 
 .shop-view-btn {
@@ -98,16 +108,36 @@
 .shop-add-to-cart-btn {
   background: linear-gradient(135deg, #ff758c, #ff4b6e);
   color: white;
-  box-shadow: 0 8px 15px rgba(255, 118, 156, 0.4);
+  border: none;
+  box-shadow: 0 6px 14px rgba(255, 118, 156, 0.3);
 }
 
 .shop-add-to-cart-btn:hover {
   background: linear-gradient(135deg, #ff4b6e, #ff758c);
-  box-shadow: 0 12px 20px rgba(255, 118, 156, 0.6);
-  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(255, 118, 156, 0.4);
+  transform: translateY(-2px);
 }
 
-/* 🌟 Responsive Design */
+/* 🌟 Status Messages */
+.loading-message,
+.error-message,
+.empty-state {
+  font-size: 1.1rem;
+  padding: 20px;
+  color: #777;
+}
+
+.error-message {
+  color: #d32f2f;
+}
+
+.empty-state {
+  font-size: 1.2rem;
+  color: #999;
+  font-style: italic;
+}
+
+/* 🌟 Responsive Fixes */
 @media (max-width: 768px) {
   .shop-products {
     grid-template-columns: 1fr;
@@ -115,5 +145,10 @@
 
   .product-image {
     height: 220px;
+  }
+
+  .shop-view-btn,
+  .shop-add-to-cart-btn {
+    font-size: 0.9rem;
   }
 }

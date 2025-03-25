@@ -7,30 +7,52 @@ import {
   manageArticles,
 } from "../controllers/adminController.mjs";
 import {
+  updateUserRole,
+  deleteUser
+} from "../controllers/userController.mjs";
+import { getProducts } from "../controllers/productController.mjs";
+
+import {
   protect,
   adminOnly,
   validateRequest,
 } from "../middlewares/validateMiddleware.mjs";
-import { updateProductSchema } from "../middlewares/validationSchemas.mjs"; // ✅ Fixed Import
+import {
+  updateProductSchema,
+  userRoleSchema
+} from "../middlewares/validationSchemas.mjs";
 
 const router = express.Router();
 
-// ✅ Admin Dashboard Route
+/**
+ * 🛠 Admin Dashboard
+ */
 router.get("/", protect, adminOnly, (req, res) => {
   res.status(200).json({ message: "Welcome to the Admin Dashboard", user: req.user });
 });
 
-// ✅ Manage Products
+/**
+ * 🧪 Products
+ */
+router.get("/products", protect, adminOnly, getProducts);
 router.put("/products/:id", protect, adminOnly, validateRequest(updateProductSchema), updateProduct);
 router.delete("/products/:id", protect, adminOnly, deleteProduct);
 
-// ✅ Manage Orders
+/**
+ * 📦 Orders
+ */
 router.get("/orders", protect, adminOnly, manageOrders);
 
-// ✅ Manage Users
+/**
+ * 👥 Users
+ */
 router.get("/users", protect, adminOnly, manageUsers);
+router.put("/users/:id/role", protect, adminOnly, validateRequest(userRoleSchema), updateUserRole);
+router.delete("/users/:id", protect, adminOnly, deleteUser);
 
-// ✅ Manage Articles
+/**
+ * 📰 Articles
+ */
 router.get("/articles", protect, adminOnly, manageArticles);
 
 export default router;

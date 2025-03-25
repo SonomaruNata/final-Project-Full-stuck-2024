@@ -116,4 +116,55 @@
       transform: rotate(360deg);
     }
   }
-  
+  /* Profile.css / EditInfo.css */
+.profile-card, .edit-info-card {
+  max-width: 500px;
+  margin: auto;
+  padding: 30px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-radius: 15px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.input-group input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+.update-btn, .edit-btn, .save-btn {
+  background-color: #ff4b6e;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.update-btn:hover, .edit-btn:hover, .save-btn:hover {
+  background-color: #ff758c;
+}
+
+.success-message, .status-message {
+  margin-top: 10px;
+  color: green;
+  font-weight: bold;
+}
+
+.error-message {
+  color: red;
+}

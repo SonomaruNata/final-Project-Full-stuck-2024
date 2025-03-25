@@ -1,23 +1,22 @@
-// src/pages/User/EditInfo.js
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
+import "./EditInfo.css";
 
 const EditInfo = () => {
   const [user, setUser] = useState({});
   const [editing, setEditing] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetchUserProfile();
+    (async () => {
+      try {
+        const res = await axiosInstance.get("/users/profile");
+        setUser(res.data);
+      } catch (err) {
+        setMessage("⚠️ Could not load profile.");
+      }
+    })();
   }, []);
-
-  const fetchUserProfile = async () => {
-    try {
-      const response = await axiosInstance.get("/api/users/profile");
-      setUser(response.data);
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-    }
-  };
 
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -25,36 +24,31 @@ const EditInfo = () => {
 
   const handleSave = async () => {
     try {
-      await axiosInstance.put("/api/users/profile", user);
+      await axiosInstance.put("/users/profile", user);
       setEditing(false);
-      alert("Profile updated successfully!");
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile.");
+      setMessage("✅ Profile updated successfully!");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      setMessage("❌ Error updating profile.");
     }
   };
 
   return (
-    <div className="edit-info">
-      <h2>Profile Information</h2>
-      <input
-        type="text"
-        name="name"
-        value={user.name || ""}
-        onChange={handleChange}
-        disabled={!editing}
-      />
-      <input
-        type="email"
-        name="email"
-        value={user.email || ""}
-        disabled
-      />
+    <div className="edit-info-card">
+      <h2>👤 Profile Details</h2>
+      <label>Name</label>
+      <input type="text" name="name" value={user.name || ""} onChange={handleChange} disabled={!editing} />
+
+      <label>Email</label>
+      <input type="email" name="email" value={user.email || ""} disabled />
+
       {editing ? (
-        <button onClick={handleSave}>Save</button>
+        <button onClick={handleSave} className="save-btn">💾 Save</button>
       ) : (
-        <button onClick={() => setEditing(true)}>Edit Profile</button>
+        <button onClick={() => setEditing(true)} className="edit-btn">✏️ Edit Profile</button>
       )}
+
+      {message && <p className="status-message">{message}</p>}
     </div>
   );
 };

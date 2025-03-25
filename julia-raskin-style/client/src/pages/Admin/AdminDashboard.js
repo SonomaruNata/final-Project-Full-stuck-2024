@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useContext } from "react";
 import { Navigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { FaUsers, FaBox, FaNewspaper, FaClipboardList } from "react-icons/fa";
+import "./AdminDashboard.css";
 
 const ManageUsers = lazy(() => import("./ManageUsers"));
 const ManageProducts = lazy(() => import("./ManageProducts"));
@@ -10,6 +11,7 @@ const ManageOrders = lazy(() => import("./ManageOrders"));
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
+
   if (!user || user.role !== "admin") return <Navigate to="/" replace />;
 
   return (
@@ -18,11 +20,11 @@ const AdminDashboard = () => {
       <p>Welcome, <strong>{user.name}</strong> (Admin)</p>
 
       <div className="admin-grid">
-        {[ 
+        {[
           { comp: ManageUsers, icon: FaUsers, title: "Manage Users" },
           { comp: ManageProducts, icon: FaBox, title: "Manage Products" },
           { comp: ManageArticles, icon: FaNewspaper, title: "Manage Articles" },
-          { comp: ManageOrders, icon: FaClipboardList, title: "Manage Orders" }
+          { comp: ManageOrders, icon: FaClipboardList, title: "Manage Orders" },
         ].map(({ comp: Component, icon: Icon, title }, index) => (
           <Suspense key={index} fallback={<div>Loading {title}...</div>}>
             <div className="admin-card">
@@ -38,4 +40,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

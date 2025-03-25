@@ -34,22 +34,19 @@ export const getArticleById = async (req, res) => {
 /**
  * ✅ Create Article (Protected + Admin Only)
  */
-export const createArticle = async (req, res) => {
+ export const createArticle = async (req, res) => {
   try {
-    const newArticle = new Article({
+    const imageUrl = req.file ? req.file.filename : null;
+    const article = new Article({
       title: req.body.title,
       content: req.body.content,
-      author: req.user.id, // ✅ Author is the logged-in user
-      imageUrl: req.body.imageUrl,
-      gallery: req.body.gallery || [],
+      imageUrl,
+      author: req.user.id,
     });
-
-    const savedArticle = await newArticle.save();
-    console.log(`✅ Article Created: ${savedArticle.title}`);
-    res.status(201).json(savedArticle);
-  } catch (error) {
-    console.error(`❌ Create Article Error: ${error.message}`);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    const saved = await article.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 };
 
