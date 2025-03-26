@@ -2,21 +2,47 @@ import Product from "../models/Product.mjs";
 import Order from "../models/Order.mjs";
 import Article from "../models/Article.mjs";
 import User from "../models/User.mjs";
+import { updateProductSchema } from "../middlewares/validationSchemas.mjs";
+
+/**
+ * ✅ Format image URL
+ */
+const formatImageUrl = (req, filename) =>
+  filename ? `${req.protocol}://${req.get("host")}/images/products/${filename}` : null;
 
 /**
  * 🧪 Update Product (Admin Only)
  */
 export const updateProduct = async (req, res) => {
+  const { error } = updateProductSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: "Validation failed", errors: error.details });
+  }
+
   try {
+    const updateData = { ...req.body };
+
+    if (req.file) {
+      updateData.imageUrl = req.file.filename;
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     ).lean();
 
-    if (!updatedProduct) return res.status(404).json({ message: "Product not found" });
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
 
-    res.status(200).json({ message: "Product updated successfully", product: updatedProduct });
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: {
+        ...updatedProduct,
+        imageUrl: formatImageUrl(req, updatedProduct.imageUrl),
+      },
+    });
   } catch (err) {
     console.error("❌ Update Product Error:", err.message);
     res.status(500).json({ message: "Error updating product", error: err.message });
@@ -30,7 +56,9 @@ export const deleteProduct = async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id).lean();
 
-    if (!deleted) return res.status(404).json({ message: "Product not found" });
+    if (!deleted) {
+      return res.status(404).json({ message: "Product not found" });
+    }
 
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (err) {
@@ -62,10 +90,7 @@ export const manageOrders = async (req, res) => {
  */
 export const manageUsers = async (req, res) => {
   try {
-    const users = await User.find()
-      .select("-password")
-      .lean();
-
+    const users = await User.find().select("-password").lean();
     res.status(200).json(users);
   } catch (err) {
     console.error("❌ Fetch Users Error:", err.message);

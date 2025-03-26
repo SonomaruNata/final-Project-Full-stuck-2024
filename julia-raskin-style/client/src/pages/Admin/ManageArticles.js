@@ -1,3 +1,4 @@
+// ✅ Cleaned, debugged, synced with backend image URL updates
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
 import "./AdminDashboard.css";
@@ -5,15 +6,15 @@ import "./AdminDashboard.css";
 const ManageArticles = () => {
   const [articles, setArticles] = useState([]);
   const [newArticle, setNewArticle] = useState({ title: "", content: "", image: null });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const fetchArticles = async () => {
     try {
       const res = await axiosInstance.get("/admin/articles");
       setArticles(res.data);
-    } catch (err) {
+    } catch {
       setError("❌ Failed to load articles.");
     }
   };
@@ -23,9 +24,11 @@ const ManageArticles = () => {
   }, []);
 
   const handleAddArticle = async () => {
-    if (!newArticle.title || !newArticle.content) {
-      setMessage("⚠️ Title and content are required!");
-      return;
+    setMessage("");
+    setError("");
+
+    if (!newArticle.title.trim() || !newArticle.content.trim()) {
+      return setMessage("⚠️ Title and content are required!");
     }
 
     const formData = new FormData();
@@ -42,22 +45,22 @@ const ManageArticles = () => {
       setNewArticle({ title: "", content: "", image: null });
       fetchArticles();
     } catch (err) {
-      console.error("❌ Error adding article:", err);
-      setError("Failed to add article.");
+      console.error("❌ Add Article Error:", err);
+      setError("❌ Failed to add article.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteArticle = async (id) => {
-    if (!window.confirm("🛑 Delete this article?")) return;
+    if (!window.confirm("🛑 Are you sure you want to delete this article?")) return;
     try {
       await axiosInstance.delete(`/admin/articles/${id}`);
-      setMessage("🗑️ Article deleted.");
       setArticles((prev) => prev.filter((a) => a._id !== id));
+      setMessage("🗑️ Article deleted.");
     } catch (err) {
-      console.error(err);
-      setError("❌ Failed to delete.");
+      console.error("❌ Delete Article Error:", err);
+      setError("❌ Failed to delete article.");
     }
   };
 
@@ -68,7 +71,7 @@ const ManageArticles = () => {
       {message && <div className="success-message">{message}</div>}
       {error && <div className="error-message">{error}</div>}
 
-      {/* ✅ New Article Form */}
+      {/* ➕ Add Article Form */}
       <div className="add-article">
         <input
           type="text"
@@ -90,15 +93,19 @@ const ManageArticles = () => {
           <img
             src={URL.createObjectURL(newArticle.image)}
             alt="Preview"
-            style={{ width: 100, marginTop: 10 }}
+            className="preview-image"
           />
         )}
-        <button onClick={handleAddArticle} className="btn btn-primary" disabled={loading}>
+        <button
+          className="btn btn-primary"
+          onClick={handleAddArticle}
+          disabled={loading}
+        >
           {loading ? "Submitting..." : "➕ Add Article"}
         </button>
       </div>
 
-      {/* ✅ List */}
+      {/* 📋 Article Table */}
       <table className="modern-table">
         <thead>
           <tr>
@@ -115,22 +122,30 @@ const ManageArticles = () => {
                 <td>
                   {article.imageUrl ? (
                     <img
-                      src={`http://localhost:5000/uploads/articles/${article.imageUrl}`}
+                      src={article.imageUrl}
                       alt="thumb"
+                      className="product-image"
                       style={{ width: 60, borderRadius: 4 }}
                     />
-                  ) : (
-                    "—"
-                  )}
+                  ) : "—"}
                 </td>
                 <td>
-                  <button className="btn btn-warning" onClick={() => alert("✏️ Edit Coming Soon!")}>Edit</button>
-                  <button className="btn btn-danger" onClick={() => handleDeleteArticle(article._id)}>🗑️ Delete</button>
+                  <button className="edit-btn" disabled title="Edit coming soon!">
+                    ✏️ Edit
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDeleteArticle(article._id)}
+                  >
+                    🗑️ Delete
+                  </button>
                 </td>
               </tr>
             ))
           ) : (
-            <tr><td colSpan="3">🚨 No articles available.</td></tr>
+            <tr>
+              <td colSpan="3">🚨 No articles available.</td>
+            </tr>
           )}
         </tbody>
       </table>
