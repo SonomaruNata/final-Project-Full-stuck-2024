@@ -34,22 +34,38 @@ app.use(cors({
   allowedHeaders: "Content-Type, Accept, Authorization",
 }));
 
-// 🖼️ Serve Static Images
-const imageDir = path.join(__dirname, "public/images");
-if (!fs.existsSync(imageDir)) fs.mkdirSync(imageDir, { recursive: true });
-app.use("/images", express.static(imageDir));
+// 🖼️ Serve all image types from /uploads
+const uploadsDir = path.join(__dirname, "public/uploads");
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+app.use("/uploads", express.static(uploadsDir));
 
-// 📸 Multer Upload Config
+// 📸 Multer Config (Generic - Supports products & articles)
+const makeUploadDir = (folder) => {
+  const fullPath = path.join(uploadsDir, "images", folder);
+  if (!fs.existsSync(fullPath)) fs.mkdirSync(fullPath, { recursive: true });
+  return fullPath;
+};
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, imageDir),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+  destination: (req, file, cb) => {
+    const type = req.body.type || "products"; // Default to products
+    const dir = makeUploadDir(type);
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const cleanName = file.originalname.replace(/\s+/g, "-").toLowerCase();
+    cb(null, `${Date.now()}-${cleanName}`);
+  },
 });
 const upload = multer({ storage });
 
 // 🔐 Admin-only Upload Endpoint
 app.post("/api/upload", protect, adminOnly, upload.single("image"), (req, res) => {
+  const type = req.body.type || "products";
   if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-  res.status(200).json({ imageUrl: `/images/${req.file.filename}` });
+
+  const imageUrl = `/uploads/images/${type}/${req.file.filename}`;
+  res.status(200).json({ message: "Upload successful", imageUrl });
 });
 
 // 🌱 Admin-only Seeding

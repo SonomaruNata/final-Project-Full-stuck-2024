@@ -1,12 +1,13 @@
 import Product from "../models/Product.mjs";
 import { productSchema, updateProductSchema } from "../middlewares/validationSchemas.mjs";
-import { validateRequest } from "../middlewares/validateMiddleware.mjs";
 
 /**
- * ✅ Format full image URL
+ * 🔗 Format image path to absolute URL
  */
-const formatImageUrl = (req, filename) =>
-  filename ? `${req.protocol}://${req.get("host")}/images/${filename}` : null;
+const formatImageUrl = (req, filename) => {
+  const basePath = `${req.protocol}://${req.get("host")}/images/products`;
+  return filename ? `${basePath}/${filename}` : `${basePath}/default.jpg`;
+};
 
 /**
  * 🌍 Fetch All Products (Public)
