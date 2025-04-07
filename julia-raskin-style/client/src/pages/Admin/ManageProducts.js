@@ -1,6 +1,7 @@
-// src/pages/Admin/ManageProducts.js
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
+import { getFullImageUrl } from "../../utils/imageUtils";
+ // ✅ Central utility
 import "./AdminDashboard.css";
 
 const ManageProducts = () => {
@@ -25,10 +26,16 @@ const ManageProducts = () => {
 
   const fetchProducts = async () => {
     setLoading(true);
+    setError("");
     try {
       const { data } = await axiosInstance.get("/admin/products");
-      setProducts(data);
+      const formatted = data.map((p) => ({
+        ...p,
+        imageUrl: getFullImageUrl(p.imageUrl, "/uploads/images/products/default.jpg"),
+      }));
+      setProducts(formatted);
     } catch (err) {
+      console.error("❌ Fetch Error:", err);
       setError("❌ Failed to load products.");
     } finally {
       setLoading(false);
@@ -36,12 +43,13 @@ const ManageProducts = () => {
   };
 
   const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!window.confirm("🛑 Are you sure you want to delete this product?")) return;
     try {
       await axiosInstance.delete(`/admin/products/${id}`);
       setProducts((prev) => prev.filter((product) => product._id !== id));
       setFeedback("🗑️ Product deleted.");
-    } catch {
+    } catch (err) {
+      console.error("❌ Delete Error:", err);
       setError("❌ Error deleting product.");
     }
   };
@@ -51,14 +59,14 @@ const ManageProducts = () => {
     setFeedback("");
 
     const { name, price, stock } = newProduct;
-    if (!name || !price || !stock) {
+    if (!name.trim() || !price || !stock) {
       return setError("⚠️ Name, price, and stock are required.");
     }
 
     const formData = new FormData();
-    for (const [key, val] of Object.entries(newProduct)) {
+    Object.entries(newProduct).forEach(([key, val]) => {
       if (val) formData.append(key, val);
-    }
+    });
 
     try {
       await axiosInstance.post("/admin/products", formData, {
@@ -75,7 +83,8 @@ const ManageProducts = () => {
       });
       setPreview(null);
       fetchProducts();
-    } catch {
+    } catch (err) {
+      console.error("❌ Add Error:", err);
       setError("❌ Failed to add product.");
     }
   };
@@ -83,6 +92,10 @@ const ManageProducts = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      return setError("⚠️ Only image files are allowed.");
+    }
 
     setNewProduct((prev) => ({ ...prev, image: file }));
     setPreview(URL.createObjectURL(file));
@@ -94,14 +107,39 @@ const ManageProducts = () => {
 
       <div className="add-product-form">
         <h3>Add New Product</h3>
+
         <div className="form-grid">
-          <input type="text" placeholder="Name" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
-          <input type="number" placeholder="Price" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
-          <input type="number" placeholder="Stock" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} />
-          <input type="text" placeholder="Category" value={newProduct.category} onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })} />
+          <input
+            type="text"
+            placeholder="Name"
+            value={newProduct.name}
+            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+          />
+          <input
+            type="number"
+            placeholder="Price"
+            value={newProduct.price}
+            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+          />
+          <input
+            type="number"
+            placeholder="Stock"
+            value={newProduct.stock}
+            onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Category"
+            value={newProduct.category}
+            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+          />
         </div>
 
-        <textarea placeholder="Description" value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
+        <textarea
+          placeholder="Description"
+          value={newProduct.description}
+          onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+        />
 
         <input type="file" accept="image/*" onChange={handleImageChange} />
         {preview && <img src={preview} alt="Preview" className="preview-image" />}
@@ -119,30 +157,39 @@ const ManageProducts = () => {
       {loading ? (
         <p>⏳ Loading products...</p>
       ) : products.length === 0 ? (
-        <p>No products available.</p>
+        <p>🚨 No products available.</p>
       ) : (
         <table className="modern-table">
           <thead>
             <tr>
-              <th>Image</th>
+              <th>🖼️ Image</th>
               <th>Name</th>
               <th>Price</th>
               <th>Stock</th>
-              <th>Actions</th>
+              <th>⚙️ Actions</th>
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
-              <tr key={product._id}>
+            {products.map(({ _id, name, price, stock, imageUrl }) => (
+              <tr key={_id}>
                 <td>
-                  <img src={product.imageUrl} alt={product.name} className="product-image" />
+                  <img
+                    src={imageUrl}
+                    alt={name}
+                    className="product-image"
+                    onError={(e) =>
+                      (e.target.src = getFullImageUrl(null, "/uploads/images/products/default.jpg"))
+                    }
+                  />
                 </td>
-                <td>{product.name}</td>
-                <td>${parseFloat(product.price).toFixed(2)}</td>
-                <td>{product.stock}</td>
+                <td>{name}</td>
+                <td>${parseFloat(price).toFixed(2)}</td>
+                <td>{stock}</td>
                 <td>
                   <button className="edit-btn" disabled>Edit</button>
-                  <button className="delete-btn" onClick={() => handleDeleteProduct(product._id)}>Delete</button>
+                  <button className="delete-btn" onClick={() => handleDeleteProduct(_id)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

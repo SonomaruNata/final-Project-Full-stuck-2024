@@ -4,15 +4,27 @@ import { AuthContext } from "../../context/AuthContext";
 import { FaUsers, FaBox, FaNewspaper, FaClipboardList } from "react-icons/fa";
 import "./AdminDashboard.css";
 
+// 💤 Lazy Loaded Components
 const ManageUsers = lazy(() => import("./ManageUsers"));
 const ManageProducts = lazy(() => import("./ManageProducts"));
 const ManageArticles = lazy(() => import("./ManageArticles"));
 const ManageOrders = lazy(() => import("./ManageOrders"));
 
+// 🧠 Card Config
+const dashboardItems = [
+  { component: ManageUsers, icon: FaUsers, title: "Manage Users" },
+  { component: ManageProducts, icon: FaBox, title: "Manage Products" },
+  { component: ManageArticles, icon: FaNewspaper, title: "Manage Articles" },
+  { component: ManageOrders, icon: FaClipboardList, title: "Manage Orders" },
+];
+
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
 
-  if (!user || user.role !== "admin") return <Navigate to="/" replace />;
+  // 🔐 Role Gate
+  if (!user || user.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="admin-dashboard">
@@ -20,20 +32,15 @@ const AdminDashboard = () => {
       <p>Welcome, <strong>{user.name}</strong> (Admin)</p>
 
       <div className="admin-grid">
-        {[
-          { comp: ManageUsers, icon: FaUsers, title: "Manage Users" },
-          { comp: ManageProducts, icon: FaBox, title: "Manage Products" },
-          { comp: ManageArticles, icon: FaNewspaper, title: "Manage Articles" },
-          { comp: ManageOrders, icon: FaClipboardList, title: "Manage Orders" },
-        ].map(({ comp: Component, icon: Icon, title }, index) => (
-          <Suspense key={index} fallback={<div>Loading {title}...</div>}>
-            <div className="admin-card">
+        <Suspense fallback={<div className="loading-dashboard">Loading dashboard sections...</div>}>
+          {dashboardItems.map(({ component: Component, icon: Icon, title }, index) => (
+            <div className="admin-card" key={index}>
               <Icon className="admin-icon" />
               <h3>{title}</h3>
               <Component />
             </div>
-          </Suspense>
-        ))}
+          ))}
+        </Suspense>
       </div>
     </div>
   );

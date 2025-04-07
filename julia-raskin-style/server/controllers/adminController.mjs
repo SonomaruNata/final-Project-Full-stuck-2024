@@ -3,12 +3,7 @@ import Order from "../models/Order.mjs";
 import Article from "../models/Article.mjs";
 import User from "../models/User.mjs";
 import { updateProductSchema } from "../middlewares/validationSchemas.mjs";
-
-/**
- * ✅ Format image URL
- */
-const formatImageUrl = (req, filename) =>
-  filename ? `${req.protocol}://${req.get("host")}/images/products/${filename}` : null;
+import { formatImageUrl } from "../utils/apiHelpers.mjs"; // ✅ Centralized image URL formatter
 
 /**
  * 🧪 Update Product (Admin Only)
@@ -40,7 +35,7 @@ export const updateProduct = async (req, res) => {
       message: "Product updated successfully",
       product: {
         ...updatedProduct,
-        imageUrl: formatImageUrl(req, updatedProduct.imageUrl),
+        imageUrl: formatImageUrl(req, updatedProduct.imageUrl, "products"),
       },
     });
   } catch (err) {
@@ -78,7 +73,19 @@ export const manageOrders = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    res.status(200).json(orders);
+    // Format product images in orders
+    const formattedOrders = orders.map((order) => ({
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        product: {
+          ...item.product,
+          imageUrl: formatImageUrl(req, item.product.imageUrl, "products"),
+        },
+      })),
+    }));
+
+    res.status(200).json(formattedOrders);
   } catch (err) {
     console.error("❌ Fetch Orders Error:", err.message);
     res.status(500).json({ message: "Error fetching orders", error: err.message });
@@ -108,7 +115,12 @@ export const manageArticles = async (req, res) => {
       .select("-__v")
       .lean();
 
-    res.status(200).json(articles);
+    const formatted = articles.map((a) => ({
+      ...a,
+      imageUrl: formatImageUrl(req, a.imageUrl, "articles"),
+    }));
+
+    res.status(200).json(formatted);
   } catch (err) {
     console.error("❌ Fetch Articles Error:", err.message);
     res.status(500).json({ message: "Error fetching articles", error: err.message });

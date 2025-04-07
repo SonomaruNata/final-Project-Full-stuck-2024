@@ -1,21 +1,36 @@
-// src/pages/ShoppingSchool/ShoppingSchool.js
-
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
 import Article from "../../components/Article";
 import JuliaImages from "../../assets/images/about/JuliaImages";
+import { getFullImageUrl } from "../../utils/imageUtils";
 import "./ShoppingSchool.css";
 
 const ShoppingSchool = () => {
   const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await axiosInstance.get("/articles");
-        setArticles(response.data);
-      } catch (error) {
-        console.error("Error fetching articles:", error);
+        const { data } = await axiosInstance.get("/articles");
+
+        const formatted = data.map((article) => ({
+          ...article,
+          imageUrl: getFullImageUrl(article.imageUrl, "/uploads/images/articles/default.jpg"),
+          gallery: Array.isArray(article.gallery)
+            ? article.gallery.map((img) =>
+                getFullImageUrl(img, "/uploads/images/articles/default.jpg")
+              )
+            : [],
+        }));
+
+        setArticles(formatted);
+      } catch (err) {
+        console.error("❌ Error fetching articles:", err);
+        setError("⚠️ Failed to load articles.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -24,11 +39,12 @@ const ShoppingSchool = () => {
 
   return (
     <div className="shopping-school-container">
+      {/* 🎨 Hero Section */}
       <div
         className="hero-section"
         style={{
           backgroundImage: `linear-gradient(
-            rgba(238, 174, 202, 0.7), 
+            rgba(238, 174, 202, 0.7),
             rgba(148, 187, 233, 0.7)
           ), url(${JuliaImages.shoppingHero})`,
         }}
@@ -42,15 +58,20 @@ const ShoppingSchool = () => {
         </p>
       </div>
 
+      {/* 📰 Articles Section */}
       <div className="articles-section">
-        {articles.length > 0 ? (
+        {loading ? (
+          <p className="loading-text">⏳ Loading articles...</p>
+        ) : error ? (
+          <p className="error-text">{error}</p>
+        ) : articles.length > 0 ? (
           <div className="articles-grid">
             {articles.map((article) => (
               <Article key={article._id} article={article} />
             ))}
           </div>
         ) : (
-          <p>No fashion articles found.</p>
+          <p className="empty-text">🚫 No fashion articles found.</p>
         )}
       </div>
     </div>

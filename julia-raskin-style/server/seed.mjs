@@ -12,60 +12,102 @@ import { users, products, articles } from "./data/initial-data.mjs";
 dotenv.config();
 
 /**
- * 📸 Copy product images from /seed/images to /public/uploads/images/products
+ * 📸 Copy images from seed/images/[type] ➡️ public/uploads/images/[type]
  */
-const copySeedImages = () => {
-  const sourceDir = path.resolve("seed/images");
-  const destDir = path.resolve("public/uploads/images/products");
+const copySeedImagesByType = (type) => {
+  const sourceDir = path.resolve(`seed/images/${type}`);
+  const destDir = path.resolve(`public/uploads/images/${type}`);
+
+  if (!fs.existsSync(sourceDir)) {
+    console.log(chalk.red(`❌ Missing folder: seed/images/${type}`));
+    return;
+  }
 
   if (!fs.existsSync(destDir)) {
     fs.mkdirSync(destDir, { recursive: true });
-    console.log(chalk.yellow("📁 Created upload directory for product images."));
+    console.log(chalk.yellow(`📁 Created upload directory: uploads/images/${type}`));
   }
 
-  const imageFiles = fs.readdirSync(sourceDir);
-  imageFiles.forEach((file) => {
+  const files = fs.readdirSync(sourceDir);
+  if (files.length === 0) {
+    console.log(chalk.yellow(`⚠️ No ${type} images found in seed/images/${type}`));
+    return;
+  }
+
+  files.forEach((file) => {
     const src = path.join(sourceDir, file);
     const dest = path.join(destDir, file);
+
     if (!fs.existsSync(dest)) {
       fs.copyFileSync(src, dest);
-      console.log(chalk.green(`📸 Copied image: ${file}`));
+      console.log(chalk.green(`📸 Copied ${type} image: ${file}`));
     }
   });
 };
 
+/**
+ * ✅ Verifies each data item's image reference exists in the uploads folder
+ */
+const verifyImageRefs = (items, type) => {
+  const uploadDir = path.resolve(`public/uploads/images/${type}`);
+  const fileSet = new Set(fs.existsSync(uploadDir) ? fs.readdirSync(uploadDir) : []);
+  const missing = [];
+
+  items.forEach((item) => {
+    const filename = path.basename(item.imageUrl || "");
+    if (filename && !fileSet.has(filename)) {
+      missing.push(`${item.title || item.name}: ${filename}`);
+    }
+  });
+
+  if (missing.length > 0) {
+    console.log(chalk.red(`❌ Missing ${type} image files:`));
+    missing.forEach((msg) => console.log(`   - ${msg}`));
+  } else {
+    console.log(chalk.green(`✅ All ${type} image references are valid.`));
+  }
+};
+
+/**
+ * 🌱 Seed the entire database
+ */
 export const seedDatabase = async () => {
   try {
-    console.log(chalk.yellow("🔄 Seeding Database..."));
+    console.log(chalk.cyan("🔁 Initializing Database Seeding..."));
 
-    // 🖼️ Copy Product Images
-    copySeedImages();
+    // 🖼️ Sync seed images
+    copySeedImagesByType("products");
+    copySeedImagesByType("articles");
 
-    // ✅ Seed Users
+    // 👤 Users
     const userCount = await User.countDocuments();
     if (userCount === 0) {
       await User.insertMany(users);
-      console.log(chalk.green("✅ Users Seeded Successfully!"));
+      console.log(chalk.green("✅ Users seeded."));
     } else {
-      console.log(chalk.yellow("⚠️ Users already exist. Skipping user seeding."));
+      console.log(chalk.yellow("⚠️ Skipping users: already exist."));
     }
 
-    // ✅ Seed Products
+    // 📦 Products
     const productCount = await Product.countDocuments();
     if (productCount === 0) {
       await Product.insertMany(products);
-      console.log(chalk.green("✅ Products Seeded Successfully!"));
+      console.log(chalk.green("✅ Products seeded."));
     } else {
-      console.log(chalk.yellow("⚠️ Products already exist. Skipping product seeding."));
+      console.log(chalk.yellow("⚠️ Skipping products: already exist."));
     }
 
-    // ✅ Seed Articles
-    console.log(chalk.yellow("🔄 Refreshing Articles Collection..."));
-    await Article.deleteMany(); // Clear Articles
-    await Article.insertMany(articles); // Seed New Articles
-    console.log(chalk.green("✅ Articles Seeded Successfully!"));
+    // 📰 Articles
+    console.log(chalk.yellow("🔄 Replacing all articles..."));
+    await Article.deleteMany();
+    await Article.insertMany(articles);
+    console.log(chalk.green("✅ Articles seeded."));
 
-    console.log(chalk.blue("🚀 Database Seeding Complete!"));
+    // 🧪 Verify image links
+    verifyImageRefs(products, "products");
+    verifyImageRefs(articles, "articles");
+
+    console.log(chalk.blueBright("🎉 Database Seeding Complete!"));
   } catch (error) {
     console.error(chalk.red(`❌ Seeding Error: ${error.message}`));
   } finally {
@@ -73,7 +115,7 @@ export const seedDatabase = async () => {
   }
 };
 
-// 🏁 Run Directly from CLI
+// 🏁 CLI entry point
 if (process.argv[2] === "--run") {
   mongoose.connect(process.env.MONGO_DB_URL).then(() => seedDatabase());
 }

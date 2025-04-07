@@ -1,11 +1,16 @@
-// ✅ Cleaned, debugged, synced with backend image URL updates
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
 import "./AdminDashboard.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+const getFullUrl = (path) =>
+  path?.startsWith("http") ? path : `${API_URL}${path || "/uploads/images/articles/default.jpg"}`;
+
 const ManageArticles = () => {
   const [articles, setArticles] = useState([]);
   const [newArticle, setNewArticle] = useState({ title: "", content: "", image: null });
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -13,8 +18,13 @@ const ManageArticles = () => {
   const fetchArticles = async () => {
     try {
       const res = await axiosInstance.get("/admin/articles");
-      setArticles(res.data);
-    } catch {
+      const updated = res.data.map((a) => ({
+        ...a,
+        imageUrl: getFullUrl(a.imageUrl),
+      }));
+      setArticles(updated);
+    } catch (err) {
+      console.error("❌ Fetch Articles Error:", err);
       setError("❌ Failed to load articles.");
     }
   };
@@ -27,14 +37,15 @@ const ManageArticles = () => {
     setMessage("");
     setError("");
 
-    if (!newArticle.title.trim() || !newArticle.content.trim()) {
-      return setMessage("⚠️ Title and content are required!");
+    const { title, content, image } = newArticle;
+    if (!title.trim() || !content.trim()) {
+      return setError("⚠️ Title and content are required.");
     }
 
     const formData = new FormData();
-    formData.append("title", newArticle.title);
-    formData.append("content", newArticle.content);
-    if (newArticle.image) formData.append("image", newArticle.image);
+    formData.append("title", title);
+    formData.append("content", content);
+    if (image) formData.append("image", image);
 
     try {
       setLoading(true);
@@ -43,6 +54,7 @@ const ManageArticles = () => {
       });
       setMessage("✅ Article added successfully!");
       setNewArticle({ title: "", content: "", image: null });
+      setPreview(null);
       fetchArticles();
     } catch (err) {
       console.error("❌ Add Article Error:", err);
@@ -53,26 +65,33 @@ const ManageArticles = () => {
   };
 
   const handleDeleteArticle = async (id) => {
-    if (!window.confirm("🛑 Are you sure you want to delete this article?")) return;
+    if (!window.confirm("🛑 Delete this article?")) return;
     try {
       await axiosInstance.delete(`/admin/articles/${id}`);
       setArticles((prev) => prev.filter((a) => a._id !== id));
       setMessage("🗑️ Article deleted.");
     } catch (err) {
-      console.error("❌ Delete Article Error:", err);
+      console.error("❌ Delete Error:", err);
       setError("❌ Failed to delete article.");
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setNewArticle((prev) => ({ ...prev, image: file }));
+    setPreview(URL.createObjectURL(file));
+  };
+
   return (
     <div className="admin-section">
-      <h2>📝 Article Management</h2>
+      <h2>📝 Manage Articles</h2>
 
       {message && <div className="success-message">{message}</div>}
       {error && <div className="error-message">{error}</div>}
 
-      {/* ➕ Add Article Form */}
-      <div className="add-article">
+      {/* ➕ Add Article */}
+      <div className="add-article-form">
         <input
           type="text"
           placeholder="Title"
@@ -84,18 +103,8 @@ const ManageArticles = () => {
           value={newArticle.content}
           onChange={(e) => setNewArticle({ ...newArticle, content: e.target.value })}
         />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setNewArticle({ ...newArticle, image: e.target.files[0] })}
-        />
-        {newArticle.image && (
-          <img
-            src={URL.createObjectURL(newArticle.image)}
-            alt="Preview"
-            className="preview-image"
-          />
-        )}
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+        {preview && <img src={preview} alt="Preview" className="preview-image" />}
         <button
           className="btn btn-primary"
           onClick={handleAddArticle}
@@ -105,7 +114,7 @@ const ManageArticles = () => {
         </button>
       </div>
 
-      {/* 📋 Article Table */}
+      {/* 📋 Articles Table */}
       <table className="modern-table">
         <thead>
           <tr>
@@ -116,27 +125,24 @@ const ManageArticles = () => {
         </thead>
         <tbody>
           {articles.length > 0 ? (
-            articles.map((article) => (
-              <tr key={article._id}>
-                <td>{article.title}</td>
+            articles.map(({ _id, title, imageUrl }) => (
+              <tr key={_id}>
+                <td>{title}</td>
                 <td>
-                  {article.imageUrl ? (
-                    <img
-                      src={article.imageUrl}
-                      alt="thumb"
-                      className="product-image"
-                      style={{ width: 60, borderRadius: 4 }}
-                    />
-                  ) : "—"}
+                  <img
+                    src={imageUrl}
+                    alt={title}
+                    className="product-image"
+                    onError={(e) =>
+                      (e.target.src = `${API_URL}/uploads/images/articles/default.jpg`)
+                    }
+                  />
                 </td>
                 <td>
                   <button className="edit-btn" disabled title="Edit coming soon!">
                     ✏️ Edit
                   </button>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDeleteArticle(article._id)}
-                  >
+                  <button className="delete-btn" onClick={() => handleDeleteArticle(_id)}>
                     🗑️ Delete
                   </button>
                 </td>
@@ -144,7 +150,7 @@ const ManageArticles = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="3">🚨 No articles available.</td>
+              <td colSpan="3">🚫 No articles found.</td>
             </tr>
           )}
         </tbody>

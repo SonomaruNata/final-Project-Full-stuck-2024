@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
 
-// ✅ Users Data
+// ✅ Users
 export const users = [
   {
     name: "Admin User",
-    email: "admin@example.com",
+    email: "unileibonatalia@gmail.com",
     password: bcrypt.hashSync("123456", 10),
     role: "admin",
   },
@@ -22,7 +22,7 @@ export const users = [
   },
 ];
 
-// ✅ Products Data
+// ✅ Products
 export const products = [
   {
     name: "Black Shoes",
@@ -50,7 +50,7 @@ export const products = [
   },
 ];
 
-// ✅ Articles Data
+// ✅ Articles
 export const articles = [
   {
     title: "10 Timeless Fashion Tips for Every Woman",
@@ -62,12 +62,8 @@ export const articles = [
       Don't just follow trends—set them with your unique style!
     `,
     author: "65f1a3c3e8a1c8b8f4a789a1",
-    imageUrl: "/images/articles/fashion-tips.jpg",
-    gallery: [
-      "/images/articles/fashion1.jpg",
-      "/images/articles/fashion2.jpg",
-      "/images/articles/fashion3.jpg",
-    ],
+    imageUrl: "fashion-tips.jpg",
+    gallery: ["fashion1.jpg", "fashion2.jpg", "fashion3.jpg"],
     tags: ["Fashion", "Style Tips", "Timeless Fashion", "Wardrobe Essentials"],
     createdAt: new Date(),
   },
@@ -81,12 +77,8 @@ export const articles = [
       Discover the power of dressing for your body type and transform your wardrobe with ease.
     `,
     author: "65f1a3c3e8a1c8b8f4a789a1",
-    imageUrl: "/images/articles/dress-body-type.jpg",
-    gallery: [
-      "/images/articles/bodytype1.jpg",
-      "/images/articles/bodytype2.jpg",
-      "/images/articles/bodytype3.jpg",
-    ],
+    imageUrl: "dress-body-type.jpg",
+    gallery: ["bodytype1.jpg", "bodytype2.jpg", "bodytype3.jpg"],
     tags: ["Fashion", "Body Type Guide", "Styling Tips", "Personal Style"],
     createdAt: new Date(),
   },
@@ -100,12 +92,8 @@ export const articles = [
       By investing in timeless basics, you’ll never face the dilemma of having nothing to wear again!
     `,
     author: "65f1a3c3e8a1c8b8f4a789a1",
-    imageUrl: "/images/articles/wardrobe-essentials.jpg",
-    gallery: [
-      "/images/articles/wardrobe1.jpg",
-      "/images/articles/wardrobe2.jpg",
-      "/images/articles/wardrobe3.jpg",
-    ],
+    imageUrl: "wardrobe-essentials.jpg",
+    gallery: ["wardrobe1.jpg", "wardrobe2.jpg", "wardrobe3.jpg"],
     tags: ["Fashion", "Wardrobe Essentials", "Style Basics", "Timeless Clothing"],
     createdAt: new Date(),
   },

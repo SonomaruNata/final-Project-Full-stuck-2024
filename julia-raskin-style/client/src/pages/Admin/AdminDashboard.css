@@ -121,14 +121,30 @@
 
 /* ➕ Add Article / Add Product Forms */
 .add-article,
-.add-product {
-  margin-bottom: 30px;
+.add-product,
+.add-article-form,
+.add-product-form {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 40px;
+}
+
+.add-article-form h3,
+.add-product-form h3 {
+  margin-bottom: 15px;
+  color: #333;
 }
 
 .add-article input,
 .add-article textarea,
 .add-product input,
-.add-product textarea {
+.add-product textarea,
+.add-article-form input,
+.add-article-form textarea,
+.add-product-form input,
+.add-product-form textarea {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
@@ -150,31 +166,28 @@
   }
 
   .add-article input,
-  .add-article textarea {
+  .add-article textarea,
+  .add-product input,
+  .add-product textarea {
     font-size: 14px;
   }
+
+  .modern-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 }
+
 /* Form Grid for Product Creation */
-.add-product-form {
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-  margin-bottom: 40px;
-}
-
-.add-product-form h3 {
-  margin-bottom: 15px;
-  color: #333;
-}
-
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
 }
 
-.add-product-form textarea {
+.add-product-form textarea,
+.add-article-form textarea {
   width: 100%;
   min-height: 100px;
   margin-top: 15px;
@@ -189,6 +202,28 @@
   width: 100px;
   height: 100px;
   object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* ⏳ Loading Spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+  color: #999;
+}
+
+/* 🧩 Image Fallback */
+.image-fallback {
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #aaa;
+  width: 100px;
+  height: 100px;
   border-radius: 8px;
   border: 1px solid #ccc;
 }

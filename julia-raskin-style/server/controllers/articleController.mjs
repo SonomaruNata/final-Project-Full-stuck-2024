@@ -1,11 +1,6 @@
 import Article from "../models/Article.mjs";
 import { createArticleSchema, updateArticleSchema } from "../middlewares/validationSchemas.mjs";
-
-/**
- * 🖼️ Format image path to full URL
- */
-const formatImageUrl = (req, filename) =>
-  filename ? `${req.protocol}://${req.get("host")}/uploads/articles/${filename}` : null;
+import { formatImageUrl } from "../utils/apiHelpers.mjs"; // ✅ Centralized helper
 
 /**
  * ✅ Get All Articles (Public)
@@ -17,8 +12,16 @@ export const getArticles = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
+    const updated = articles.map((article) => ({
+      ...article,
+      imageUrl: formatImageUrl(req, article.imageUrl, "articles"),
+      gallery: Array.isArray(article.gallery)
+        ? article.gallery.map((img) => formatImageUrl(req, img, "articles"))
+        : [],
+    }));
+
     console.log("✅ Fetched All Articles");
-    res.status(200).json(articles);
+    res.status(200).json(updated);
   } catch (error) {
     console.error(`❌ Get Articles Error: ${error.message}`);
     res.status(500).json({ message: "Server Error", error: error.message });
@@ -37,6 +40,11 @@ export const getArticleById = async (req, res) => {
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
     }
+
+    article.imageUrl = formatImageUrl(req, article.imageUrl, "articles");
+    article.gallery = Array.isArray(article.gallery)
+      ? article.gallery.map((img) => formatImageUrl(req, img, "articles"))
+      : [];
 
     console.log(`✅ Fetched Article: ${article.title}`);
     res.status(200).json(article);
@@ -75,7 +83,7 @@ export const createArticle = async (req, res) => {
       message: "Article created successfully",
       article: {
         ...saved.toObject(),
-        imageUrl: formatImageUrl(req, saved.imageUrl),
+        imageUrl: formatImageUrl(req, saved.imageUrl, "articles"),
       },
     });
   } catch (err) {
@@ -95,9 +103,7 @@ export const updateArticle = async (req, res) => {
 
   try {
     const updateData = { ...req.body };
-    if (req.file) {
-      updateData.imageUrl = req.file.filename;
-    }
+    if (req.file) updateData.imageUrl = req.file.filename;
 
     const updated = await Article.findByIdAndUpdate(
       req.params.id,
@@ -109,12 +115,11 @@ export const updateArticle = async (req, res) => {
       return res.status(404).json({ message: "Article not found" });
     }
 
-    console.log(`✅ Article Updated: ${updated.title}`);
     res.status(200).json({
       message: "Article updated successfully",
       article: {
         ...updated,
-        imageUrl: formatImageUrl(req, updated.imageUrl),
+        imageUrl: formatImageUrl(req, updated.imageUrl, "articles"),
       },
     });
   } catch (error) {
@@ -129,7 +134,6 @@ export const updateArticle = async (req, res) => {
 export const deleteArticle = async (req, res) => {
   try {
     const deleted = await Article.findByIdAndDelete(req.params.id);
-
     if (!deleted) {
       return res.status(404).json({ message: "Article not found" });
     }

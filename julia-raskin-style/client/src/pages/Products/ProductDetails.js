@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { getFullImageUrl } from "../../utils/imageUtils";
 import "./ProductDetails.css";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -14,7 +13,7 @@ function ProductDetails() {
 
   const fetchProduct = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/products/${id}`);
+      const res = await axios.get(`/api/products/${id}`);
       setProduct(res.data);
     } catch {
       setError("❌ Failed to load product.");
@@ -27,10 +26,10 @@ function ProductDetails() {
 
   const addToCart = async () => {
     try {
-      await axios.post(`${API_URL}/api/cart`, { productId: id, quantity }, { withCredentials: true });
+      await axios.post("/api/cart", { productId: id, quantity }, { withCredentials: true });
       alert("✅ Product added to cart!");
       navigate("/cart");
-    } catch (err) {
+    } catch {
       alert("❌ Failed to add product to cart.");
     }
   };
@@ -42,12 +41,19 @@ function ProductDetails() {
       ) : product ? (
         <div className="product-details-card">
           <div className="product-image-wrapper">
-            <img src={product.imageUrl} alt={product.name} className="product-image" />
+            <img
+              src={getFullImageUrl(product.imageUrl, "/uploads/images/products/default.jpg")}
+              alt={product.name}
+              className="product-image"
+              onError={(e) =>
+                (e.target.src = getFullImageUrl(null, "/uploads/images/products/default.jpg"))
+              }
+            />
           </div>
           <div className="product-info">
             <h2>{product.name}</h2>
             <p>{product.description}</p>
-            <h3>${product.price}</h3>
+            <h3>${product.price.toFixed(2)}</h3>
             <div className="quantity-selector">
               <label htmlFor="quantity">Quantity:</label>
               <input
