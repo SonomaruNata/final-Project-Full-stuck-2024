@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./ProductDetails.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const fallbackImage = "/uploads/images/products/default.jpg";
 
 function ProductDetails() {
@@ -12,11 +13,13 @@ function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState("");
 
+  // 🔄 Fetch single product
   const fetchProduct = useCallback(async () => {
     try {
-      const res = await axios.get(`/api/products/${id}`);
+      const res = await axios.get(`${API_URL}/api/products/${id}`);
       setProduct(res.data);
-    } catch {
+    } catch (err) {
+      console.error("❌ Fetch Error:", err);
       setError("❌ Failed to load product.");
     }
   }, [id]);
@@ -25,12 +28,18 @@ function ProductDetails() {
     fetchProduct();
   }, [fetchProduct]);
 
+  // 🛒 Add product to cart
   const addToCart = async () => {
     try {
-      await axios.post("/api/cart", { productId: id, quantity }, { withCredentials: true });
+      await axios.post(
+        `${API_URL}/api/cart`,
+        { productId: id, quantity },
+        { withCredentials: true }
+      );
       alert("✅ Product added to cart!");
       navigate("/cart");
-    } catch {
+    } catch (err) {
+      console.error("❌ Add to Cart Error:", err);
       alert("❌ Failed to add product to cart.");
     }
   };
@@ -56,6 +65,7 @@ function ProductDetails() {
             <h2>{product.name}</h2>
             <p>{product.description}</p>
             <h3>${product.price.toFixed(2)}</h3>
+
             <div className="quantity-selector">
               <label htmlFor="quantity">Quantity:</label>
               <input
@@ -66,13 +76,14 @@ function ProductDetails() {
                 onChange={(e) => setQuantity(Number(e.target.value))}
               />
             </div>
+
             <button className="add-to-cart-btn" onClick={addToCart}>
               Add to Cart 🛒
             </button>
           </div>
         </div>
       ) : (
-        <p className="loading-text">Loading...</p>
+        <p className="loading-text">⏳ Loading product details...</p>
       )}
     </div>
   );

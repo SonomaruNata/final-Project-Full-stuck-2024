@@ -11,13 +11,13 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // 🛒 Fetch Products
+  // 🛒 Fetch Featured Products
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
       const res = await axios.get(`${API_URL}/api/products`);
-      setProducts(res.data.slice(0, 4)); // 🧠 Limit to 4 featured items
+      setProducts(res.data.slice(0, 4)); // 🎯 Only show 4
     } catch (err) {
       setError("❌ Failed to load products. Please try again.");
       console.error("❌ Fetch Error:", err);
@@ -80,7 +80,9 @@ const Home = () => {
                   />
                   <h5 className="product-title">{product.name}</h5>
                   <p className="product-price">${product.price.toFixed(2)}</p>
-                  <Link to={`/shop/${product._id}`} className="view-product-btn">
+
+                  {/* ✅ Correct endpoint */}
+                  <Link to={`/product/${product._id}`} className="view-product-btn">
                     View Product
                   </Link>
                 </div>

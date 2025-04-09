@@ -3,10 +3,11 @@ import axiosInstance from "../../axiosInstance";
 import "./AdminDashboard.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const fallbackImage = "/uploads/images/articles/default.jpg";
 
-// Utility to safely construct full image path
+// 🔧 Utility for formatting image URLs
 const getFullImageUrl = (path) =>
-  path?.startsWith("http") ? path : `${API_URL}${path || "/uploads/images/articles/default.jpg"}`;
+  path?.startsWith("http") ? path : `${API_URL}${path || fallbackImage}`;
 
 const ManageArticles = () => {
   const [articles, setArticles] = useState([]);
@@ -16,29 +17,31 @@ const ManageArticles = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const fetchArticles = async () => {
-    try {
-      const res = await axiosInstance.get("/admin/articles");
-      const updated = res.data.map((a) => ({
-        ...a,
-        imageUrl: getFullImageUrl(a.imageUrl),
-      }));
-      setArticles(updated);
-    } catch (err) {
-      console.error("❌ Fetch Articles Error:", err);
-      setError("❌ Failed to load articles.");
-    }
-  };
-
+  // 🔄 Fetch articles on mount
   useEffect(() => {
     fetchArticles();
   }, []);
+
+  const fetchArticles = async () => {
+    try {
+      const res = await axiosInstance.get("/admin/articles");
+      const formatted = res.data.map((a) => ({
+        ...a,
+        imageUrl: getFullImageUrl(a.imageUrl),
+      }));
+      setArticles(formatted);
+    } catch (err) {
+      console.error("❌ Fetch Error:", err);
+      setError("❌ Failed to load articles.");
+    }
+  };
 
   const handleAddArticle = async () => {
     setMessage("");
     setError("");
 
     const { title, content, image } = newArticle;
+
     if (!title.trim() || !content.trim()) {
       return setError("⚠️ Title and content are required.");
     }
@@ -58,7 +61,7 @@ const ManageArticles = () => {
       setPreview(null);
       fetchArticles();
     } catch (err) {
-      console.error("❌ Add Article Error:", err);
+      console.error("❌ Add Error:", err);
       setError("❌ Failed to add article.");
     } finally {
       setLoading(false);
@@ -66,7 +69,7 @@ const ManageArticles = () => {
   };
 
   const handleDeleteArticle = async (id) => {
-    if (!window.confirm("🛑 Are you sure you want to delete this article?")) return;
+    if (!window.confirm("⚠️ Are you sure you want to delete this article?")) return;
     try {
       await axiosInstance.delete(`/admin/articles/${id}`);
       setArticles((prev) => prev.filter((a) => a._id !== id));
@@ -80,6 +83,15 @@ const ManageArticles = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      return setError("⚠️ Only image files are allowed.");
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      return setError("⚠️ File size exceeds 5MB limit.");
+    }
+
     setNewArticle((prev) => ({ ...prev, image: file }));
     setPreview(URL.createObjectURL(file));
   };
@@ -88,32 +100,30 @@ const ManageArticles = () => {
     <div className="admin-section">
       <h2>📝 Manage Articles</h2>
 
-      {message && <div className="success-message">{message}</div>}
-      {error && <div className="error-message">{error}</div>}
+      {message && <p className="success-message">{message}</p>}
+      {error && <p className="error-message">{error}</p>}
 
-      {/* ➕ Add Article */}
+      {/* 🧾 Article Form */}
       <div className="add-article-form">
         <input
           type="text"
-          placeholder="Title"
+          placeholder="Article Title"
           value={newArticle.title}
           onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })}
         />
         <textarea
-          placeholder="Content"
+          placeholder="Write your article content here..."
           value={newArticle.content}
           onChange={(e) => setNewArticle({ ...newArticle, content: e.target.value })}
         />
         <input type="file" accept="image/*" onChange={handleImageChange} />
         {preview && <img src={preview} alt="Preview" className="preview-image" />}
-        <button
-          className="btn btn-primary"
-          onClick={handleAddArticle}
-          disabled={loading}
-        >
+        <button className="btn btn-primary" onClick={handleAddArticle} disabled={loading}>
           {loading ? "Submitting..." : "➕ Add Article"}
         </button>
       </div>
+
+      <hr />
 
       {/* 📋 Articles Table */}
       <table className="modern-table">
@@ -136,12 +146,12 @@ const ManageArticles = () => {
                     className="product-image"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = `${API_URL}/uploads/images/articles/default.jpg`;
+                      e.target.src = fallbackImage;
                     }}
                   />
                 </td>
                 <td>
-                  <button className="edit-btn" disabled title="Edit coming soon!">
+                  <button className="edit-btn" disabled title="Edit coming soon">
                     ✏️ Edit
                   </button>
                   <button className="delete-btn" onClick={() => handleDeleteArticle(_id)}>
@@ -152,7 +162,7 @@ const ManageArticles = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="3">🚫 No articles found.</td>
+              <td colSpan="3">🚨 No articles found.</td>
             </tr>
           )}
         </tbody>

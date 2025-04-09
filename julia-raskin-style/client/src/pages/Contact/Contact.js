@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./Contact.css";
 
+const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -12,40 +14,44 @@ const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
 
+  // 📝 Handle input field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 🚀 Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
     setIsSubmitted(false);
 
-    if (!formData.name || !formData.email || !formData.message) {
-      setError("All fields are required.");
+    const { name, email, message } = formData;
+    if (!name.trim() || !email.trim() || message.trim().length < 10) {
+      setError("⚠️ All fields are required and message must be at least 10 characters.");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/contact`, {
+      const response = await fetch(`${API_URL}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "❌ Failed to send message.");
+      } else {
         setIsSubmitted(true);
         setFormData({ name: "", email: "", message: "" });
-      } else {
-        const data = await response.json();
-        setError(data.message || "Failed to send message. Please try again.");
       }
     } catch (err) {
       console.error("❌ Contact Error:", err);
-      setError("Server unreachable. Please try again later.");
+      setError("❌ Server unreachable. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -53,13 +59,13 @@ const Contact = () => {
 
   return (
     <div className="contact-page">
-      <h1>Contact Us</h1>
-      <p>We’d love to hear from you. Fill out the form below and we’ll get back to you shortly.</p>
+      <h1>📬 Contact Us</h1>
+      <p>We’d love to hear from you. Fill out the form below and we’ll respond shortly.</p>
 
       {isSubmitted && <div className="success-message">✅ Message sent successfully!</div>}
-      {error && <div className="error-message">❌ {error}</div>}
+      {error && <div className="error-message">{error}</div>}
 
-      <form className="contact-form" onSubmit={handleSubmit}>
+      <form className="contact-form" onSubmit={handleSubmit} noValidate>
         <input
           type="text"
           name="name"
@@ -81,12 +87,17 @@ const Contact = () => {
         <textarea
           name="message"
           placeholder="Your Message"
+          rows="5"
           value={formData.message}
           onChange={handleChange}
           required
           disabled={isSubmitting}
-        ></textarea>
-        <button type="submit" className="contact-submit-btn" disabled={isSubmitting}>
+        />
+        <button
+          type="submit"
+          className="contact-submit-btn"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Sending..." : "Send Message"}
         </button>
       </form>

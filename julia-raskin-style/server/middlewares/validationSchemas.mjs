@@ -137,12 +137,12 @@ export const contactSchema = Joi.object({
 
 /**
  * ✅ Create Article
+ * NOTE: `author` is injected by backend (req.user.id), not required from frontend
  */
 export const createArticleSchema = Joi.object({
   title: Joi.string().min(5).max(100).required(),
   content: Joi.string().min(20).max(5000).required(),
-  author: Joi.string().required(),
-  category: Joi.string().min(3).max(50).optional(),
+  category: Joi.string().min(3).max(50).optional().allow(""),
   tags: Joi.array().items(Joi.string().max(30)).optional(),
   published: Joi.boolean().optional(),
 });

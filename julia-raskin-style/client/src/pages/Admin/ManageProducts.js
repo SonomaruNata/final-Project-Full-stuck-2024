@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
-import { getFullImageUrl } from "../../utils/imageUtils"; // ✅ Centralized image formatter
+import { getFullImageUrl } from "../../utils/imageUtils";
 import "./AdminDashboard.css";
+
+const fallbackImage = "/uploads/images/products/default.jpg";
 
 const ManageProducts = () => {
   const [products, setProducts] = useState([]);
@@ -30,7 +32,7 @@ const ManageProducts = () => {
       const { data } = await axiosInstance.get("/admin/products");
       const formatted = data.map((p) => ({
         ...p,
-        imageUrl: getFullImageUrl(p.imageUrl, "/uploads/images/products/default.jpg"),
+        imageUrl: getFullImageUrl(p.imageUrl, fallbackImage),
       }));
       setProducts(formatted);
     } catch (err) {
@@ -57,9 +59,10 @@ const ManageProducts = () => {
     setError("");
     setFeedback("");
 
-    const { name, price, stock } = newProduct;
-    if (!name.trim() || !price || !stock) {
-      return setError("⚠️ Name, price, and stock are required.");
+    const { name, price, stock, description, category, image } = newProduct;
+
+    if (!name.trim() || !price || !stock || !description.trim() || !category.trim()) {
+      return setError("⚠️ All fields are required.");
     }
 
     const formData = new FormData();
@@ -116,6 +119,7 @@ const ManageProducts = () => {
           />
           <input
             type="number"
+            step="0.01"
             placeholder="Price"
             value={newProduct.price}
             onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
@@ -176,9 +180,10 @@ const ManageProducts = () => {
                     src={imageUrl}
                     alt={name}
                     className="product-image"
-                    onError={(e) =>
-                      (e.target.src = getFullImageUrl(null, "/uploads/images/products/default.jpg"))
-                    }
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = fallbackImage;
+                    }}
                   />
                 </td>
                 <td>{name}</td>

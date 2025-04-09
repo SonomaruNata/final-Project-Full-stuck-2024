@@ -12,6 +12,7 @@ function Shop() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // 🔄 Fetch products from backend
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -30,6 +31,7 @@ function Shop() {
     fetchProducts();
   }, [fetchProducts]);
 
+  // 🛒 Add item to cart
   const addToCart = async (productId) => {
     try {
       await axios.post(
