@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance";
-import { getFullImageUrl } from "../../utils/imageUtils";
- // ✅ Central utility
+import { getFullImageUrl } from "../../utils/imageUtils"; // ✅ Centralized image formatter
 import "./AdminDashboard.css";
 
 const ManageProducts = () => {
@@ -186,9 +185,11 @@ const ManageProducts = () => {
                 <td>${parseFloat(price).toFixed(2)}</td>
                 <td>{stock}</td>
                 <td>
-                  <button className="edit-btn" disabled>Edit</button>
+                  <button className="edit-btn" disabled title="Edit coming soon">
+                    ✏️ Edit
+                  </button>
                   <button className="delete-btn" onClick={() => handleDeleteProduct(_id)}>
-                    Delete
+                    🗑️ Delete
                   </button>
                 </td>
               </tr>

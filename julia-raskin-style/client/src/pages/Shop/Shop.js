@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getFullImageUrl } from "../../utils/imageUtils";
 import "./Shop.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const fallbackImage = "/uploads/images/products/default.jpg";
 
 function Shop() {
   const [products, setProducts] = useState([]);
@@ -17,7 +17,7 @@ function Shop() {
     setError("");
 
     try {
-      const res = await axios.get(`${API_URL}/api/products`); // No credentials needed
+      const res = await axios.get(`${API_URL}/api/products`);
       setProducts(res.data);
     } catch (err) {
       setError(err.response?.data?.message || "⚠️ Failed to load products.");
@@ -49,7 +49,9 @@ function Shop() {
       <div className="shop-header">
         <h1>🛍️ Discover Our Collection</h1>
         <p>Timeless fashion curated just for you.</p>
-        {products.length > 0 && <p className="shop-count">Showing {products.length} Products</p>}
+        {products.length > 0 && (
+          <p className="shop-count">Showing {products.length} Products</p>
+        )}
       </div>
 
       {loading && <p className="loading-message">⏳ Loading products...</p>}
@@ -60,13 +62,14 @@ function Shop() {
           products.map((product) => (
             <div key={product._id} className="shop-card">
               <img
-                src={getFullImageUrl(product.imageUrl, "/uploads/images/products/default.jpg")}
+                src={product.imageUrl || fallbackImage}
                 alt={product.name}
                 className="product-image"
                 loading="lazy"
-                onError={(e) =>
-                  (e.target.src = getFullImageUrl(null, "/uploads/images/products/default.jpg"))
-                }
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = fallbackImage;
+                }}
               />
               <h3 className="shop-card-title">{product.name}</h3>
               <p className="shop-card-price">${product.price.toFixed(2)}</p>

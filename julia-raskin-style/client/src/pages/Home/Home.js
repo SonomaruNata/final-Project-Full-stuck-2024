@@ -4,6 +4,7 @@ import axios from "axios";
 import "./Home.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const fallbackImage = "/uploads/images/products/default.jpg";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -68,10 +69,14 @@ const Home = () => {
               products.map((product) => (
                 <div key={product._id} className="product-card">
                   <img
-                    src={product.imageUrl || "/images/placeholder.png"}
+                    src={product.imageUrl || fallbackImage}
                     alt={product.name}
                     className="product-image"
                     loading="lazy"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = fallbackImage;
+                    }}
                   />
                   <h5 className="product-title">{product.name}</h5>
                   <p className="product-price">${product.price.toFixed(2)}</p>

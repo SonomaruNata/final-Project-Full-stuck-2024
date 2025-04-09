@@ -1,8 +1,10 @@
-// client/src/pages/ShoppingSchool/ArticleDetail.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../axiosInstance";
 import "./ArticleDetail.css";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const fallbackImage = "/uploads/images/articles/default.jpg";
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -16,8 +18,8 @@ const ArticleDetail = () => {
         const response = await axiosInstance.get(`/articles/${id}`);
         setArticle(response.data);
       } catch (err) {
-        setError("❌ Failed to load article. Please try again.");
         console.error("❌ Error fetching article:", err);
+        setError("❌ Failed to load article. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -27,7 +29,8 @@ const ArticleDetail = () => {
   }, [id]);
 
   if (loading) return <p>⏳ Loading article...</p>;
-  if (error) return <p>{error}</p>;
+  if (error) return <p className="error-message">{error}</p>;
+  if (!article) return <p>🚫 Article not found.</p>;
 
   return (
     <div className="article-detail-container">
@@ -35,9 +38,13 @@ const ArticleDetail = () => {
 
       {/* ✅ Main Image */}
       <img
-        src={`http://localhost:5000${article.imageUrl}`}  // ✅ Corrected URL
+        src={article.imageUrl || fallbackImage}
         alt={article.title}
         className="article-detail-image"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = fallbackImage;
+        }}
       />
 
       {/* ✅ Article Content */}
@@ -48,14 +55,18 @@ const ArticleDetail = () => {
       {/* ✅ Gallery Section */}
       {article.gallery?.length > 0 && (
         <div className="article-detail-gallery">
-          <h2 className="gallery-title">Gallery</h2>
+          <h2 className="gallery-title">🖼️ Gallery</h2>
           <div className="gallery-images">
-            {article.gallery.map((image, index) => (
+            {article.gallery.map((img, index) => (
               <img
                 key={index}
-                src={`http://localhost:5000${image}`}  // ✅ Corrected URL
+                src={img || fallbackImage}
                 alt={`Gallery ${index + 1}`}
                 className="gallery-image"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = fallbackImage;
+                }}
               />
             ))}
           </div>

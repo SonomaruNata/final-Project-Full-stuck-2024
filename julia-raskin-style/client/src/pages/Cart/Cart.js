@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Cart.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const fallbackImage = "/uploads/images/products/default.jpg";
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -11,7 +12,6 @@ function Cart() {
   const [total, setTotal] = useState(0);
   const navigate = useNavigate();
 
-  // ✅ Load Cart on Mount
   useEffect(() => {
     const loadCart = async () => {
       if (localStorage.getItem("token")) {
@@ -32,18 +32,15 @@ function Cart() {
     loadCart();
   }, []);
 
-  // ✅ Recalculate Total
   useEffect(() => {
     const newTotal = cartItems.reduce(
       (sum, item) =>
-        sum +
-        (item.product?.price || item.price) * (item.quantity || 1),
+        sum + (item.product?.price || item.price) * (item.quantity || 1),
       0
     );
     setTotal(newTotal);
   }, [cartItems]);
 
-  // ✅ Update Quantity
   const updateQuantity = async (productId, quantity) => {
     if (quantity < 1) return;
     try {
@@ -54,9 +51,7 @@ function Cart() {
       );
       setCartItems((prev) =>
         prev.map((item) =>
-          item.product._id === productId
-            ? { ...item, quantity }
-            : item
+          item.product._id === productId ? { ...item, quantity } : item
         )
       );
     } catch {
@@ -64,7 +59,6 @@ function Cart() {
     }
   };
 
-  // ✅ Remove Item
   const removeItem = async (productId) => {
     try {
       await axios.delete(`${API_URL}/api/cart/${productId}`, {
@@ -103,9 +97,13 @@ function Cart() {
                   <tr key={product._id}>
                     <td className="cart-product">
                       <img
-                        src={product.imageUrl}
+                        src={product.imageUrl || fallbackImage}
                         alt={product.name}
                         className="cart-product-image"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = fallbackImage;
+                        }}
                       />
                       <span>{product.name}</span>
                     </td>
@@ -129,9 +127,7 @@ function Cart() {
                         +
                       </button>
                     </td>
-                    <td>
-                      ${(product.price * item.quantity).toFixed(2)}
-                    </td>
+                    <td>${(product.price * item.quantity).toFixed(2)}</td>
                     <td>
                       <button
                         className="cart-delete-btn"

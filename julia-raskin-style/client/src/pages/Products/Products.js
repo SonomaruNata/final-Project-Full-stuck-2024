@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getFullImageUrl } from "../utils/imageUtils";
 import "./Products.css";
+
+const fallbackImage = "/uploads/images/products/default.jpg";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -16,6 +17,7 @@ const Products = () => {
         const res = await axios.get("/api/products");
         setProducts(res.data);
       } catch (err) {
+        console.error("❌ Fetch Error:", err);
         setError("⚠️ Failed to load products.");
       } finally {
         setLoading(false);
@@ -29,7 +31,8 @@ const Products = () => {
     try {
       await axios.post("/api/cart", { productId, quantity: 1 }, { withCredentials: true });
       alert("🛒 Added to cart!");
-    } catch {
+    } catch (err) {
+      console.error("❌ Cart Error:", err);
       alert("❌ Error adding to cart.");
     }
   };
@@ -39,7 +42,7 @@ const Products = () => {
       <h1>🛍️ Explore Our Products</h1>
 
       {loading ? (
-        <p className="loading-text">Loading products...</p>
+        <p className="loading-text">⏳ Loading products...</p>
       ) : error ? (
         <p className="error-text">{error}</p>
       ) : (
@@ -47,18 +50,21 @@ const Products = () => {
           {products.map((product) => (
             <div key={product._id} className="product-card">
               <img
-                src={getFullImageUrl(product.imageUrl, "/uploads/images/products/default.jpg")}
+                src={product.imageUrl}
                 alt={product.name}
                 className="product-image"
+                loading="lazy"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = getFullImageUrl(null, "/uploads/images/products/default.jpg");
+                  e.target.src = fallbackImage;
                 }}
               />
               <h3>{product.name}</h3>
               <p>${product.price?.toFixed(2)}</p>
               <div className="product-actions">
-                <button onClick={() => navigate(`/product/${product._id}`)}>Product Details</button>
+                <button onClick={() => navigate(`/product/${product._id}`)}>
+                  Product Details
+                </button>
                 <button onClick={() => handleAddToCart(product._id)}>Add to Cart</button>
               </div>
             </div>

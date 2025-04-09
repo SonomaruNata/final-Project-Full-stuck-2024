@@ -16,9 +16,21 @@ import { seedDatabase } from "./seed.mjs";
 
 dotenv.config();
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
+const morganFormat = (tokens, req, res) => {
+  return [
+    chalk.cyan(`[${moment().format("YYYY-MM-DD HH:mm:ss")}]`),
+    chalk.magenta(tokens.method(req, res)),
+    chalk.green(tokens.url(req, res)),
+    chalk.yellow(tokens.status(req, res)),
+    chalk.gray(`${tokens['response-time'](req, res)}ms`),
+  ].join(" ");
+};
+
+app.use(morgan(morganFormat));
 
 // 🧩 Basic Middleware (before DB)
 app.use(express.json());

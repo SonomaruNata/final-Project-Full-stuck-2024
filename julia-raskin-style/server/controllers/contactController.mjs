@@ -1,52 +1,61 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import { validateRequest } from "../middlewares/validateMiddleware.mjs";
-import { contactSchema } from "../middlewares/validationSchemas.mjs";
+import Joi from "joi";
 
 dotenv.config();
 
+// ✅ Schema definition (can also import it)
+const contactSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  message: Joi.string().min(10).required(),
+});
+
 /**
- * ✅ **Handle Contact Form Submission**
+ * 📩 Handle Contact Form Submission and send email
  */
 export const handleContactForm = async (req, res) => {
   try {
-    // ✅ Validate request data using Joi schema
-    validateRequest(contactSchema)(req, res, async () => {
-      const { name, email, message } = req.body;
-
-      // ✅ Setup Nodemailer Transporter
-      const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST || "smtp.gmail.com",
-        port: process.env.EMAIL_PORT || 587,
-        secure: false, // Use `true` for 465, `false` for other ports
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
+    // ✅ Validate request data
+    const { error, value } = contactSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.details.map((d) => d.message),
       });
+    }
 
-      // ✅ Send Email
-      const mailOptions = {
-        from: `"${name}" <${email}>`,
-        to: process.env.EMAIL_USER,
-        subject: `New Contact Form Submission from ${name}`,
-        text: message,
-        html: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Message:</strong></p>
-          <p>${message}</p>
-        `,
-      };
+    const { name, email, message } = value;
 
-      await transporter.sendMail(mailOptions);
-
-      console.log(`✅ Contact form submitted successfully by ${name}`);
-      res.status(200).json({ message: "Message sent successfully" });
+    // ✅ Setup Nodemailer Transporter
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || "smtp.gmail.com",
+      port: process.env.EMAIL_PORT || 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
     });
+
+    // ✅ Compose and send email
+    await transporter.sendMail({
+      from: `"${name}" <${email}>`,
+      to: process.env.EMAIL_USER,
+      subject: `📩 Contact Form Submission from ${name}`,
+      html: `
+        <h2>You've received a new message</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message}</p>
+      `,
+    });
+
+    console.log(`✅ Contact form email sent by ${name}`);
+    res.status(200).json({ message: "Message sent successfully" });
   } catch (error) {
-    console.error("❌ Email Sending Error:", error);
-    res.status(500).json({ message: "Error sending message", error: error.message });
+    console.error("❌ Email sending error:", error.message);
+    res.status(500).json({ message: "Failed to send message", error: error.message });
   }
 };

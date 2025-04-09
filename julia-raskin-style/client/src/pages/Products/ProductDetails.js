@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { getFullImageUrl } from "../../utils/imageUtils";
 import "./ProductDetails.css";
+
+const fallbackImage = "/uploads/images/products/default.jpg";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -42,12 +43,13 @@ function ProductDetails() {
         <div className="product-details-card">
           <div className="product-image-wrapper">
             <img
-              src={getFullImageUrl(product.imageUrl, "/uploads/images/products/default.jpg")}
+              src={product.imageUrl || fallbackImage}
               alt={product.name}
               className="product-image"
-              onError={(e) =>
-                (e.target.src = getFullImageUrl(null, "/uploads/images/products/default.jpg"))
-              }
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = fallbackImage;
+              }}
             />
           </div>
           <div className="product-info">

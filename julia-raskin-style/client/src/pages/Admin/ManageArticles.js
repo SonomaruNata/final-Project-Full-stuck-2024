@@ -4,7 +4,8 @@ import "./AdminDashboard.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-const getFullUrl = (path) =>
+// Utility to safely construct full image path
+const getFullImageUrl = (path) =>
   path?.startsWith("http") ? path : `${API_URL}${path || "/uploads/images/articles/default.jpg"}`;
 
 const ManageArticles = () => {
@@ -20,7 +21,7 @@ const ManageArticles = () => {
       const res = await axiosInstance.get("/admin/articles");
       const updated = res.data.map((a) => ({
         ...a,
-        imageUrl: getFullUrl(a.imageUrl),
+        imageUrl: getFullImageUrl(a.imageUrl),
       }));
       setArticles(updated);
     } catch (err) {
@@ -65,7 +66,7 @@ const ManageArticles = () => {
   };
 
   const handleDeleteArticle = async (id) => {
-    if (!window.confirm("🛑 Delete this article?")) return;
+    if (!window.confirm("🛑 Are you sure you want to delete this article?")) return;
     try {
       await axiosInstance.delete(`/admin/articles/${id}`);
       setArticles((prev) => prev.filter((a) => a._id !== id));
@@ -133,9 +134,10 @@ const ManageArticles = () => {
                     src={imageUrl}
                     alt={title}
                     className="product-image"
-                    onError={(e) =>
-                      (e.target.src = `${API_URL}/uploads/images/articles/default.jpg`)
-                    }
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `${API_URL}/uploads/images/articles/default.jpg`;
+                    }}
                   />
                 </td>
                 <td>
