@@ -50,11 +50,13 @@ const ShoppingSchool = () => {
         }}
       >
         <h1>
-          Welcome to <span style={{ color: "#e91e63" }}>Shopping School</span>
+          Welcome to <span style={{ color: "#e91e63" }}>Style Lab</span>
         </h1>
         <p>
-          Learn the art of shopping like a pro! Whether you're mastering the latest fashion trends
-          or hunting for the best deals, our school will guide you every step of the way.
+        where fashion meets strategy.
+Experiment with trends, decode your unique style, and learn how to build stunning outfits without breaking the bank. From smart shopping hacks to creative styling sessions, we’re your fashion laboratory for confident, chic living.
+
+
         </p>
       </div>
 

@@ -67,7 +67,7 @@ const ManageProducts = () => {
 
     const formData = new FormData();
     Object.entries(newProduct).forEach(([key, val]) => {
-      if (val) formData.append(key, val);
+      if (val !== null) formData.append(key, val);
     });
 
     try {
@@ -97,6 +97,10 @@ const ManageProducts = () => {
 
     if (!file.type.startsWith("image/")) {
       return setError("⚠️ Only image files are allowed.");
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      return setError("⚠️ Max file size is 5MB.");
     }
 
     setNewProduct((prev) => ({ ...prev, image: file }));
@@ -139,7 +143,7 @@ const ManageProducts = () => {
         </div>
 
         <textarea
-          placeholder="Description"
+          placeholder="Product Description"
           value={newProduct.description}
           onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
         />
@@ -147,8 +151,8 @@ const ManageProducts = () => {
         <input type="file" accept="image/*" onChange={handleImageChange} />
         {preview && <img src={preview} alt="Preview" className="preview-image" />}
 
-        <button className="btn btn-primary" onClick={handleAddProduct}>
-          ➕ Add Product
+        <button className="btn btn-primary" onClick={handleAddProduct} disabled={loading}>
+          {loading ? "Adding..." : "➕ Add Product"}
         </button>
 
         {feedback && <p className="success-message">{feedback}</p>}

@@ -5,19 +5,25 @@ import "./AdminDashboard.css";
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const fallbackImage = "/uploads/images/articles/default.jpg";
 
-// 🔧 Utility for formatting image URLs
 const getFullImageUrl = (path) =>
   path?.startsWith("http") ? path : `${API_URL}${path || fallbackImage}`;
 
 const ManageArticles = () => {
   const [articles, setArticles] = useState([]);
-  const [newArticle, setNewArticle] = useState({ title: "", content: "", image: null });
+  const [newArticle, setNewArticle] = useState({
+    title: "",
+    content: "",
+    category: "",
+    tags: "",
+    published: false,
+    image: null,
+  });
+
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // 🔄 Fetch articles on mount
   useEffect(() => {
     fetchArticles();
   }, []);
@@ -40,8 +46,7 @@ const ManageArticles = () => {
     setMessage("");
     setError("");
 
-    const { title, content, image } = newArticle;
-
+    const { title, content, category, tags, published, image } = newArticle;
     if (!title.trim() || !content.trim()) {
       return setError("⚠️ Title and content are required.");
     }
@@ -49,6 +54,9 @@ const ManageArticles = () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", content);
+    formData.append("category", category);
+    formData.append("tags", tags);
+    formData.append("published", published);
     if (image) formData.append("image", image);
 
     try {
@@ -57,7 +65,14 @@ const ManageArticles = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setMessage("✅ Article added successfully!");
-      setNewArticle({ title: "", content: "", image: null });
+      setNewArticle({
+        title: "",
+        content: "",
+        category: "",
+        tags: "",
+        published: false,
+        image: null,
+      });
       setPreview(null);
       fetchArticles();
     } catch (err) {
@@ -83,15 +98,8 @@ const ManageArticles = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      return setError("⚠️ Only image files are allowed.");
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      return setError("⚠️ File size exceeds 5MB limit.");
-    }
-
+    if (!file.type.startsWith("image/")) return setError("⚠️ Only image files allowed.");
+    if (file.size > 5 * 1024 * 1024) return setError("⚠️ Max file size is 5MB.");
     setNewArticle((prev) => ({ ...prev, image: file }));
     setPreview(URL.createObjectURL(file));
   };
@@ -99,23 +107,41 @@ const ManageArticles = () => {
   return (
     <div className="admin-section">
       <h2>📝 Manage Articles</h2>
-
       {message && <p className="success-message">{message}</p>}
       {error && <p className="error-message">{error}</p>}
 
-      {/* 🧾 Article Form */}
       <div className="add-article-form">
         <input
           type="text"
-          placeholder="Article Title"
+          placeholder="Title"
           value={newArticle.title}
           onChange={(e) => setNewArticle({ ...newArticle, title: e.target.value })}
         />
         <textarea
-          placeholder="Write your article content here..."
+          placeholder="Content"
           value={newArticle.content}
           onChange={(e) => setNewArticle({ ...newArticle, content: e.target.value })}
         />
+        <input
+          type="text"
+          placeholder="Category (optional)"
+          value={newArticle.category}
+          onChange={(e) => setNewArticle({ ...newArticle, category: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Tags (comma separated)"
+          value={newArticle.tags}
+          onChange={(e) => setNewArticle({ ...newArticle, tags: e.target.value })}
+        />
+        <label>
+          <input
+            type="checkbox"
+            checked={newArticle.published}
+            onChange={(e) => setNewArticle({ ...newArticle, published: e.target.checked })}
+          />{" "}
+          Publish
+        </label>
         <input type="file" accept="image/*" onChange={handleImageChange} />
         {preview && <img src={preview} alt="Preview" className="preview-image" />}
         <button className="btn btn-primary" onClick={handleAddArticle} disabled={loading}>
@@ -125,7 +151,6 @@ const ManageArticles = () => {
 
       <hr />
 
-      {/* 📋 Articles Table */}
       <table className="modern-table">
         <thead>
           <tr>
