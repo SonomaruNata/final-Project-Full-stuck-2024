@@ -6,6 +6,9 @@ import "./Cart.css";
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 const fallbackImage = "/uploads/images/products/default.jpg";
 
+const getImageUrl = (path) =>
+  path?.startsWith("http") ? path : `${API_URL}/${path || fallbackImage}`;
+
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [error, setError] = useState("");
@@ -14,18 +17,19 @@ function Cart() {
 
   useEffect(() => {
     const loadCart = async () => {
-      if (localStorage.getItem("token")) {
-        try {
+      try {
+        if (localStorage.getItem("token")) {
           const res = await axios.get(`${API_URL}/api/cart`, {
             withCredentials: true,
           });
           setCartItems(res.data.items || []);
-        } catch (err) {
-          setError("⚠️ Failed to load cart items.");
+        } else {
+          const local = JSON.parse(localStorage.getItem("cart")) || [];
+          setCartItems(local);
         }
-      } else {
-        const local = JSON.parse(localStorage.getItem("cart")) || [];
-        setCartItems(local);
+      } catch (err) {
+        console.error("❌ Cart load failed:", err);
+        setError("⚠️ Failed to load cart. Please refresh.");
       }
     };
 
@@ -35,7 +39,7 @@ function Cart() {
   useEffect(() => {
     const newTotal = cartItems.reduce(
       (sum, item) =>
-        sum + (item.product?.price || item.price) * (item.quantity || 1),
+        sum + (item.product?.price || item.price || 0) * (item.quantity || 1),
       0
     );
     setTotal(newTotal);
@@ -43,6 +47,7 @@ function Cart() {
 
   const updateQuantity = async (productId, quantity) => {
     if (quantity < 1) return;
+
     try {
       await axios.put(
         `${API_URL}/api/cart/${productId}`,
@@ -54,7 +59,8 @@ function Cart() {
           item.product._id === productId ? { ...item, quantity } : item
         )
       );
-    } catch {
+    } catch (err) {
+      console.error("❌ Quantity update failed:", err);
       alert("❌ Failed to update quantity.");
     }
   };
@@ -67,7 +73,8 @@ function Cart() {
       setCartItems((prev) =>
         prev.filter((item) => item.product._id !== productId)
       );
-    } catch {
+    } catch (err) {
+      console.error("❌ Remove failed:", err);
       alert("❌ Failed to remove item.");
     }
   };
@@ -93,11 +100,13 @@ function Cart() {
             <tbody>
               {cartItems.map((item) => {
                 const product = item.product || item;
+                const imageUrl = getImageUrl(product.imageUrl);
+
                 return (
                   <tr key={product._id}>
                     <td className="cart-product">
                       <img
-                        src={product.imageUrl || fallbackImage}
+                        src={imageUrl}
                         alt={product.name}
                         className="cart-product-image"
                         onError={(e) => {
@@ -107,7 +116,7 @@ function Cart() {
                       />
                       <span>{product.name}</span>
                     </td>
-                    <td>${product.price.toFixed(2)}</td>
+                    <td>${product.price?.toFixed(2)}</td>
                     <td>
                       <button
                         className="cart-btn"
@@ -143,14 +152,14 @@ function Cart() {
           </table>
 
           <div className="cart-summary">
-            <p>🧾 Total: ${total.toFixed(2)}</p>
+            <p>🧾 Total: <strong>${total.toFixed(2)}</strong></p>
             <Link to="/order" className="cart-checkout-btn">
               Proceed to Checkout
             </Link>
           </div>
         </>
       ) : (
-        <p>Your Cart is Empty 🛒</p>
+        <p className="empty-cart-message">🛒 Your cart is currently empty.</p>
       )}
     </div>
   );
