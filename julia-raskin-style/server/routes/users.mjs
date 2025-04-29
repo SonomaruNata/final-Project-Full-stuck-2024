@@ -1,6 +1,5 @@
 import express from "express";
-import { protect } from "../middlewares/validateMiddleware.mjs";
-import { validateRequest } from "../middlewares/validateMiddleware.mjs";
+import { protect, validateRequest } from "../middlewares/validateMiddleware.mjs";
 import { updateUserSchema } from "../middlewares/validationSchemas.mjs";
 import {
   getUserProfile,
@@ -9,14 +8,16 @@ import {
 
 const router = express.Router();
 
+/* --------------------------------------------
+   👤 User Profile Routes (Protected by JWT)
+--------------------------------------------- */
+
 /**
- * ✅ **User Profile Routes**
- * - `GET /profile` → Fetch user profile (protected)
- * - `PUT /profile` → Update user profile (protected, validated)
+ * GET    /api/users/profile  → Get current user's profile
+ * PUT    /api/users/profile  → Update profile (name, email, password, etc.)
  */
-router
-  .route("/profile")
+router.route("/profile")
   .get(protect, getUserProfile)
-  .put(protect, validateRequest(updateUserSchema), updateUserProfile); // ✅ Added validation
+  .put(protect, validateRequest(updateUserSchema), updateUserProfile);
 
 export default router;

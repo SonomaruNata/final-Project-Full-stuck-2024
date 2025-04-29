@@ -9,7 +9,7 @@ import {
 } from "../middlewares/validationSchemas.mjs";
 
 /**
- * 🔐 Generate JWT
+ * 🔐 Generate JWT Token
  */
 const generateToken = (user) =>
   jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
@@ -17,29 +17,37 @@ const generateToken = (user) =>
   });
 
 /**
- * 🆕 Register User
+ * 🆕 Register a New User
  */
 export const registerUser = async (req, res) => {
   try {
     validateRequest(registerSchema)(req, res, async () => {
       const { name, email, password, role } = req.body;
 
-      const existing = await User.findOne({ email });
-      if (existing) return res.status(400).json({ message: "User already exists" });
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists" });
+      }
 
-      let userRole = role || "user";
-      if (userRole === "admin" && (!req.user || req.user.role !== "admin")) {
+      const isAdminRequest = role === "admin";
+      if (isAdminRequest && (!req.user || req.user.role !== "admin")) {
         return res.status(403).json({ message: "Unauthorized to create admin user" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = await User.create({ name, email, password: hashedPassword, role: userRole });
+      const newUser = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        role: isAdminRequest ? "admin" : "user",
+      });
 
       const token = generateToken(newUser);
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       console.log(`✅ Registered: ${newUser.name} (${newUser.email})`);
@@ -78,6 +86,7 @@ export const loginUser = async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       console.log(`✅ Logged In: ${user.name} (${user.email})`);
@@ -99,7 +108,7 @@ export const loginUser = async (req, res) => {
 };
 
 /**
- * 🚪 Logout User
+ * 🚪 Logout User (Clear Cookie)
  */
 export const logoutUser = (req, res) => {
   res.clearCookie("token", {
@@ -112,7 +121,7 @@ export const logoutUser = (req, res) => {
 };
 
 /**
- * 📄 Get Logged-in User Profile
+ * 📄 Get Authenticated User Profile
  */
 export const getUserProfile = async (req, res) => {
   try {
@@ -128,26 +137,26 @@ export const getUserProfile = async (req, res) => {
 };
 
 /**
- * ✏️ Update Logged-in User Profile
+ * ✏️ Update Authenticated User Profile
  */
 export const updateUserProfile = async (req, res) => {
   try {
     validateRequest(updateUserSchema)(req, res, async () => {
-      const user = await User.findById(req.user.id);
+      const user = await User.findById(req.user.id).select("+password");
       if (!user) return res.status(404).json({ message: "User not found" });
 
       const { name, email, password } = req.body;
 
-      user.name = name || user.name;
-      user.email = email || user.email;
+      if (name) user.name = name;
+      if (email) user.email = email;
 
       if (password && !(await bcrypt.compare(password, user.password))) {
         user.password = await bcrypt.hash(password, 10);
       }
 
       const updatedUser = await user.save();
-      console.log(`✅ Profile Updated: ${updatedUser.name}`);
 
+      console.log(`✅ Profile Updated: ${updatedUser.name}`);
       res.status(200).json({
         message: "Profile updated successfully",
         user: {

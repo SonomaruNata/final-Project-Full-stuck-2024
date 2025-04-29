@@ -16,37 +16,38 @@ import {
 } from "./validationSchemas.mjs";
 
 /**
- * 🔐 Authenticate Token (JWT)
- * - Decodes JWT from header or cookie and attaches `req.user`
+ * 🔐 Authenticate JWT
+ * - Retrieves user from token (cookie or Bearer)
  */
 export const authenticateToken = async (req, res, next) => {
   const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
-  if (!token) return next(); // Pass through, `protect` will block if needed
+  if (!token) return next(); // Allow anonymous access if not protected
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select("-password");
+    const user = await User.findById(decoded.id).select("-password");
+    if (user) req.user = user;
   } catch (err) {
-    console.error("❌ Token decode failed:", err.message);
+    console.warn("❌ Invalid or expired token:", err.message);
   }
 
   next();
 };
 
 /**
- * 🧪 Validate Request Using Joi Schema
- * @param {Joi.Schema} schema - Validation schema
- * @param {string} property - Request property to validate (default: "body")
+ * 🧪 Joi Request Validation Middleware
+ * @param {Joi.Schema} schema
+ * @param {string} property - 'body', 'params', 'query'
  */
 export const validateRequest = (schema, property = "body") => {
   return (req, res, next) => {
     const { error } = schema.validate(req[property], { abortEarly: false });
 
     if (error) {
-      const errors = error.details.map((err) => ({
-        field: err.context?.key || "unknown",
-        message: err.message,
+      const errors = error.details.map((detail) => ({
+        field: detail.context?.key || "unknown",
+        message: detail.message,
       }));
       return res.status(400).json({ message: "Validation failed", errors });
     }
@@ -56,7 +57,7 @@ export const validateRequest = (schema, property = "body") => {
 };
 
 /**
- * 🛡 Protect Route Middleware (Requires Auth)
+ * 🛡 Require Authenticated User
  */
 export const protect = (req, res, next) => {
   if (!req.user) {
@@ -66,7 +67,7 @@ export const protect = (req, res, next) => {
 };
 
 /**
- * 🔐 Admin-Only Access Middleware
+ * 🔐 Require Admin Role
  */
 export const adminOnly = (req, res, next) => {
   if (!req.user || req.user.role !== "admin") {
@@ -76,17 +77,17 @@ export const adminOnly = (req, res, next) => {
 };
 
 /**
- * 👤 User-Only Access Middleware
+ * 👤 Require Regular User Role
  */
 export const userOnly = (req, res, next) => {
   if (!req.user || req.user.role !== "user") {
-    return res.status(403).json({ message: "Forbidden: Users only access" });
+    return res.status(403).json({ message: "Forbidden: User access only" });
   }
   next();
 };
 
 /**
- * 🧩 Pre-built Validators from Joi Schemas
+ * 🧩 Named Joi Validators
  */
 export const validateRegister = validateRequest(registerSchema);
 export const validateLogin = validateRequest(loginSchema);
@@ -102,7 +103,7 @@ export const validateUserRoleUpdate = validateRequest(userRoleSchema);
 export const validateCartOperation = validateRequest(cartSchema);
 
 /**
- * ✅ Export as Middleware Object (Optional use-case)
+ * ✅ Export All
  */
 export default {
   authenticateToken,

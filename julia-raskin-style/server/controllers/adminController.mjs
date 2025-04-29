@@ -3,15 +3,19 @@ import Order from "../models/Order.mjs";
 import Article from "../models/Article.mjs";
 import User from "../models/User.mjs";
 import { updateProductSchema } from "../middlewares/validationSchemas.mjs";
-import { formatImageUrl } from "../utils/apiHelpers.mjs"; // ✅ Centralized image URL formatter
+import { formatImageUrl } from "../utils/apiHelpers.mjs";
 
 /**
  * 🧪 Update Product (Admin Only)
  */
 export const updateProduct = async (req, res) => {
-  const { error } = updateProductSchema.validate(req.body);
+  const { error } = updateProductSchema.validate(req.body, { abortEarly: false });
   if (error) {
-    return res.status(400).json({ message: "Validation failed", errors: error.details });
+    const errors = error.details.map((err) => ({
+      field: err.context?.key || "unknown",
+      message: err.message,
+    }));
+    return res.status(400).json({ message: "Validation failed", errors });
   }
 
   try {
@@ -28,11 +32,11 @@ export const updateProduct = async (req, res) => {
     ).lean();
 
     if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "❌ Product not found" });
     }
 
     res.status(200).json({
-      message: "Product updated successfully",
+      message: "✅ Product updated successfully",
       product: {
         ...updatedProduct,
         imageUrl: formatImageUrl(req, updatedProduct.imageUrl, "products"),
@@ -40,7 +44,7 @@ export const updateProduct = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Update Product Error:", err.message);
-    res.status(500).json({ message: "Error updating product", error: err.message });
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 };
 
@@ -52,13 +56,13 @@ export const deleteProduct = async (req, res) => {
     const deleted = await Product.findByIdAndDelete(req.params.id).lean();
 
     if (!deleted) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "❌ Product not found" });
     }
 
-    res.status(200).json({ message: "Product deleted successfully" });
+    res.status(200).json({ message: "🗑️ Product deleted successfully" });
   } catch (err) {
     console.error("❌ Delete Product Error:", err.message);
-    res.status(500).json({ message: "Error deleting product", error: err.message });
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 };
 
@@ -73,7 +77,6 @@ export const manageOrders = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Format product images in orders
     const formattedOrders = orders.map((order) => ({
       ...order,
       items: order.items.map((item) => ({
@@ -115,12 +118,12 @@ export const manageArticles = async (req, res) => {
       .select("-__v")
       .lean();
 
-    const formatted = articles.map((a) => ({
-      ...a,
-      imageUrl: formatImageUrl(req, a.imageUrl, "articles"),
+    const formattedArticles = articles.map((article) => ({
+      ...article,
+      imageUrl: formatImageUrl(req, article.imageUrl, "articles"),
     }));
 
-    res.status(200).json(formatted);
+    res.status(200).json(formattedArticles);
   } catch (err) {
     console.error("❌ Fetch Articles Error:", err.message);
     res.status(500).json({ message: "Error fetching articles", error: err.message });
