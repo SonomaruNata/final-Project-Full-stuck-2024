@@ -57,5 +57,5 @@
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/julia-raskin-style.git
+git clone https://github.com/SonomaruNata/julia-raskin-style.git
 cd julia-raskin-style
