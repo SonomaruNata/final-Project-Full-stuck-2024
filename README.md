@@ -1,41 +1,61 @@
-# final-project-2024
- my final project
 # 🛍️ Julia Raskin Style
 
-> **A modern e-commerce platform for fashion lovers, offering personalized styling and shopping experiences. Built with MERN Stack (MongoDB, Express, React, Node.js).** 🚀
-
-
-
-## 🌟 Features
-
-✅ **User Authentication** (Signup, Login, Profile Management)  
-✅ **Admin Dashboard** (Product, User, and Order Management)  
-✅ **Secure Payment System** (Stripe / PayPal Integration)  
-✅ **Product Management** (CRUD Operations, Image Uploads)  
-✅ **Shopping Cart** (Add, Update, Remove Items)  
-✅ **Order Processing** (Checkout, Order History, Payment Status)  
-✅ **Article & Blog System** (Fashion Tips & Trends)  
-✅ **Responsive UI** (Fully optimized for desktop & mobile)
+> **A modern full-stack fashion e-commerce platform with a personal stylist touch.**  
+> Curated capsule collections, exclusive styling tips, and direct customer interaction — all in one stylish experience.  
+> Built with the **MERN Stack** (MongoDB, Express, React, Node.js).
 
 ---
 
-## 🏗️ **Tech Stack**
-| Technology  | Description |
-|-------------|------------|
-| **MongoDB** | NoSQL Database for scalable data storage |
-| **Express.js** | Backend framework for API & server |
-| **React.js** | Frontend UI with state management |
-| **Node.js** | JavaScript runtime for backend development |
-| **Mongoose** | MongoDB ODM for schema validation |
-| **JWT & Cookies** | Secure user authentication |
-| **Multer** | Image upload handling |
-| **Cloudinary** *(Optional)* | Image hosting & CDN |
+## 🌟 Key Features
+
+✅ **User Authentication** (Register, Login, Profile Update, Logout)  
+✅ **Admin Dashboard** (Manage Products, Orders, Users, Articles)  
+✅ **Product Catalog** with images, categories, slugs, filtering, and pagination  
+✅ **Shopping Cart** (Add, Remove, Update, Persistent by user)  
+✅ **Order Checkout** (Shipping, Payment, Status Tracking)  
+✅ **Secure Email Integration** with **Brevo SMTP**  
+✅ **Contact Form** with validation + Telegram Webhook Notification  
+✅ **Article System** for publishing blogs & styling advice  
+✅ **Mobile-Optimized UI** for all devices  
+✅ **SEO-Friendly URLs** with product slugs  
+✅ **Lead Collection** via Telegram or Email  
+✅ **Fully Styled with Sass + custom responsive layout**  
+✅ **Ready to deploy on platforms like Vercel / Render**
 
 ---
 
-## 🚀 **Installation & Setup**
+## 🧠 Bonus Modules
 
-### 1️⃣ **Clone the Repository**
-```sh
-git clone https://github.com/your-username/julia-raskin-style.git
+🎓 **Shopping School**: Learn to shop smart, dress well, and build a capsule wardrobe  
+🧵 **Capsule Drops**: Curated limited collections from global brands  
+📲 **Social Media Buttons** with direct links to Instagram, Facebook, Telegram  
+🖼️ **Multer Image Uploads** + fallback defaults  
+🔐 **JWT Authentication** with cookie support  
+💌 **Email delivery via SMTP (Brevo)**  
+📥 **Contact Leads stored + forwarded to Telegram**
+
+---
+
+## 🏗️ Tech Stack
+
+| Tech         | Description                            |
+|--------------|----------------------------------------|
+| **React.js** | Frontend, routing, state management     |
+| **Express.js** | Backend API & routing                 |
+| **MongoDB**  | NoSQL database for all app data         |
+| **Mongoose** | MongoDB ODM for schema validation       |
+| **Node.js**  | Runtime for backend                     |
+| **JWT**      | Authentication via secure cookies       |
+| **Multer**   | Product & article image uploads         |
+| **Nodemailer** | Email sending via SMTP                |
+| **Brevo**    | SMTP provider for transactional email   |
+| **Telegram Bot API** | Sends contact form messages directly to Telegram
+
+---
+
+## 🚀 Installation & Setup
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/YOUR_USERNAME/julia-raskin-style.git
 cd julia-raskin-style
