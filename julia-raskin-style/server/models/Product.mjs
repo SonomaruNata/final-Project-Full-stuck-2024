@@ -1,43 +1,47 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
 
-/**
- * ✅ Product Schema
- * - Defines structure for products in the database
- */
 const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: [true, "Product name is required"],
-      minlength: [3, "Product name must be at least 3 characters"],
-      maxlength: [100, "Product name cannot exceed 100 characters"],
       trim: true,
+      minlength: 3,
+      maxlength: 50,
+    },
+    slug: {
+      type: String,
+      unique: true,
+      lowercase: true,
     },
     description: {
       type: String,
       required: [true, "Product description is required"],
-      minlength: [10, "Description must be at least 10 characters"],
-      maxlength: [500, "Description cannot exceed 500 characters"],
-      trim: true,
+      minlength: 10,
+      maxlength: 500,
     },
     price: {
       type: Number,
-      required: [true, "Price is required"],
-      min: [0, "Price must be at least 0"],
+      required: [true, "Product price is required"],
+      min: 0,
     },
     category: {
       type: String,
-      required: [true, "Category is required"],
+      required: [true, "Product category is required"],
+      minlength: 2,
+      maxlength: 30,
     },
     stock: {
       type: Number,
-      required: [true, "Stock quantity is required"],
-      min: [0, "Stock cannot be negative"],
+      required: true,
+      min: 0,
       default: 0,
     },
     imageUrl: {
       type: String,
-      default: "default.jpg", // Placeholder image if none is provided
+      required: true,
+      default: "default.jpg",
     },
     createdAt: {
       type: Date,
@@ -45,10 +49,28 @@ const productSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Automatically add createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
-// ✅ Create and Export Model
+// ✅ Automatically create a SEO-friendly slug before saving
+productSchema.pre("save", function (next) {
+  if (this.isModified("name") || this.isNew) {
+    this.slug = slugify(this.name, { lower: true, strict: true });
+  }
+  next();
+});
+
+// ✅ When updating: regenerate slug if "name" is modified
+productSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate();
+  if (update.name) {
+    update.slug = slugify(update.name, { lower: true, strict: true });
+    this.setUpdate(update);
+  }
+  next();
+});
+
 const Product = mongoose.model("Product", productSchema);
+
 export default Product;

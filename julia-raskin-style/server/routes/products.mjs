@@ -1,13 +1,15 @@
 import express from "express";
 import path from "path";
 import multer from "multer";
+
 import {
   getProducts,
-  getProductById,
+  getProductBySlug,
   createProduct,
   updateProduct,
   deleteProduct,
 } from "../controllers/productController.mjs";
+
 import {
   protect,
   adminOnly,
@@ -26,9 +28,7 @@ const imageStorage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname
-      .replace(/\s+/g, "-")
-      .toLowerCase()}`;
+    const uniqueName = `${Date.now()}-${file.originalname.replace(/\s+/g, "-").toLowerCase()}`;
     cb(null, uniqueName);
   },
 });
@@ -37,10 +37,7 @@ const imageStorage = multer.diskStorage({
 const imageFilter = (req, file, cb) => {
   const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
   if (!allowedTypes.includes(file.mimetype)) {
-    return cb(
-      new Error("❌ Invalid file type. Only JPEG, PNG, or WEBP allowed."),
-      false
-    );
+    return cb(new Error("❌ Invalid file type. Only JPEG, PNG, or WEBP allowed."), false);
   }
   cb(null, true);
 };
@@ -56,23 +53,40 @@ const upload = multer({
    🌍 Public Product Routes
 ----------------------------------------- */
 
-// 📦 Fetch all products
+// 📦 Fetch all products with filters, sorting, pagination
 router.get("/", getProducts);
 
-// 🔍 Fetch product by ID
-router.get("/:id", getProductById);
+// 🔍 Fetch single product by slug
+router.get("/:slug", getProductBySlug);
 
 /* ----------------------------------------
    🔐 Admin Product Routes (Protected)
 ----------------------------------------- */
 
 // ➕ Create new product
-router.post("/", protect, adminOnly, upload.single("image"), createProduct);
+router.post(
+  "/",
+  protect,
+  adminOnly,
+  upload.single("image"),
+  createProduct
+);
 
 // ✏️ Update product
-router.put("/:id", protect, adminOnly, upload.single("image"), updateProduct);
+router.put(
+  "/:id",
+  protect,
+  adminOnly,
+  upload.single("image"),
+  updateProduct
+);
 
 // ❌ Delete product
-router.delete("/:id", protect, adminOnly, deleteProduct);
+router.delete(
+  "/:id",
+  protect,
+  adminOnly,
+  deleteProduct
+);
 
 export default router;
