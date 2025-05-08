@@ -1,19 +1,25 @@
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-
 /**
- * ✅ Generate full image URL (safe against double slashes)
- * @param {string} path - Raw image path from DB
- * @param {string} fallback - Relative fallback path (default = products)
- * @returns {string} - Full image URL
+ * ✅ Generate a full image URL for display
+ * @param {string} path - Raw image path from the database
+ * @param {string} fallback - Fallback image path (default = product placeholder)
+ * @returns {string} Fully qualified image URL
  */
-export const getFullImageUrl = (path, fallback = "/uploads/images/products/default.jpg") => {
-  if (!path) return `${API_URL}${fallback}`;
+ export const getFullImageUrl = (path, fallback = "/uploads/images/products/default.jpg") => {
+  const baseURL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 
-  // Avoid double path like /uploads/images/products//uploads/images/products/image.jpg
-  const cleaned = path.replace(/^\/+uploads\/images\/(products|articles)\//, "").replace(/^\/+/, "");
-  const folderMatch = fallback.includes("articles") ? "articles" : "products";
+  // If path is already an absolute URL (e.g., from Cloudinary or CDN)
+  if (path && path.startsWith("http")) return path;
 
-  return path.startsWith("http")
+  // Determine folder type (products or articles) from fallback
+  const folder = fallback.includes("articles") ? "articles" : "products";
+
+  // Remove any duplicated path pieces
+  const cleanFilename = path
     ? path
-    : `${API_URL}/uploads/images/${folderMatch}/${cleaned}`;
+        .replace(/^\/+uploads\/images\/(products|articles)\//, "")
+        .replace(/^\/+/, "")
+    : fallback.split("/").pop();
+
+  return `${baseURL}/uploads/images/${folder}/${cleanFilename}`;
 };
